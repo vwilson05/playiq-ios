@@ -208,7 +208,7 @@ struct GameView: View {
                 let label = hasMoreNodes ? "Continue" : (allDone ? "See Results" : "Next Scenario")
 
                 OutcomeView(outcome: outcome, buttonLabel: label) {
-                    gameState.recordOutcome(outcome)
+                    gameState.recordOutcome(outcome, category: gameState.currentScenario?.role ?? "general")
                     if hasMoreNodes, let next = outcome.next {
                         // More nodes in this scenario — continue
                         withAnimation {
@@ -309,6 +309,19 @@ struct GameHeaderView: View {
             }
             .foregroundColor(PlayIQColors.gold)
             .padding(.horizontal, 10)
+            .padding(.vertical, 4)
+            .background(PlayIQColors.card)
+            .cornerRadius(8)
+
+            // Token Display
+            HStack(spacing: 4) {
+                Image(systemName: "dollarsign.circle.fill")
+                    .font(.system(size: 12))
+                Text("\(gameState.totalIQ)")
+                    .font(PlayIQFonts.scoreboard)
+            }
+            .foregroundColor(PlayIQColors.gold.opacity(0.8))
+            .padding(.horizontal, 8)
             .padding(.vertical, 4)
             .background(PlayIQColors.card)
             .cornerRadius(8)

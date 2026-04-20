@@ -97,6 +97,29 @@ final class APIClient {
         try validateResponse(response)
     }
 
+    // MARK: - Player Profile
+
+    func fetchPlayerProfile(id: UUID) async throws -> PlayerProfile {
+        let url = URL(string: "\(baseURL)/api/players/\(id.uuidString)")!
+        let (data, response) = try await session.data(from: url)
+        try validateResponse(response)
+        return try decoder.decode(PlayerProfile.self, from: data)
+    }
+
+    func fetchPlayerAwards(id: UUID) async throws -> [PlayerAward] {
+        let url = URL(string: "\(baseURL)/api/players/\(id.uuidString)/awards")!
+        let (data, response) = try await session.data(from: url)
+        try validateResponse(response)
+        return try decoder.decode([PlayerAward].self, from: data)
+    }
+
+    func fetchPlayerHistory(id: UUID) async throws -> [SessionHistory] {
+        let url = URL(string: "\(baseURL)/api/players/\(id.uuidString)/history")!
+        let (data, response) = try await session.data(from: url)
+        try validateResponse(response)
+        return try decoder.decode([SessionHistory].self, from: data)
+    }
+
     // MARK: - Helpers
 
     private func validateResponse(_ response: URLResponse) throws {

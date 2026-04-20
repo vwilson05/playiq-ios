@@ -78,12 +78,25 @@ struct DecisionRecord: Codable, Identifiable {
     let choiceId: String
     let result: String
     let iqPoints: Int
+    let category: String
+    let whatToRemember: String?
 
     enum CodingKeys: String, CodingKey {
         case nodeId = "node_id"
         case choiceId = "choice_id"
         case result
         case iqPoints = "iq_points"
+        case category
+        case whatToRemember = "what_to_remember"
+    }
+
+    init(nodeId: String, choiceId: String, result: String, iqPoints: Int, category: String = "general", whatToRemember: String? = nil) {
+        self.nodeId = nodeId
+        self.choiceId = choiceId
+        self.result = result
+        self.iqPoints = iqPoints
+        self.category = category
+        self.whatToRemember = whatToRemember
     }
 }
 
@@ -101,5 +114,67 @@ struct GameSession: Codable, Identifiable {
         case tier, sport
         case totalIQ = "total_iq"
         case scenariosCompleted = "scenarios_completed"
+    }
+}
+
+// MARK: - Profile API Models
+
+struct PlayerProfile: Codable {
+    let id: UUID
+    let username: String
+    let displayName: String
+    let avatar: String
+    let cumulativeIQ: Int
+    let totalSessions: Int
+    let categories: [CategoryMastery]?
+
+    enum CodingKeys: String, CodingKey {
+        case id, username, avatar, categories
+        case displayName = "display_name"
+        case cumulativeIQ = "cumulative_iq"
+        case totalSessions = "total_sessions"
+    }
+}
+
+struct CategoryMastery: Codable, Identifiable {
+    var id: String { category }
+    let category: String
+    let total: Int
+    let great: Int?
+    let good: Int?
+    let okay: Int?
+    let bad: Int?
+
+    var greatGoodCount: Int {
+        (great ?? 0) + (good ?? 0)
+    }
+
+    var percentage: Int {
+        total > 0 ? Int(round(Double(greatGoodCount) / Double(total) * 100)) : 0
+    }
+}
+
+struct PlayerAward: Codable, Identifiable {
+    var id: String { awardName }
+    let awardName: String
+    let earnedAt: String?
+
+    enum CodingKeys: String, CodingKey {
+        case awardName = "award_name"
+        case earnedAt = "earned_at"
+    }
+}
+
+struct SessionHistory: Codable, Identifiable {
+    let id: UUID
+    let tier: String?
+    let grade: String?
+    let totalIQ: Int?
+    let createdAt: String?
+
+    enum CodingKeys: String, CodingKey {
+        case id, tier, grade
+        case totalIQ = "total_iq"
+        case createdAt = "created_at"
     }
 }

@@ -4,6 +4,7 @@ struct MenuView: View {
     @EnvironmentObject var gameState: GameState
     @EnvironmentObject var playerStore: PlayerStore
     @Environment(\.dismiss) var dismiss
+    @State private var showProfile = false
 
     var body: some View {
         NavigationStack {
@@ -11,33 +12,41 @@ struct MenuView: View {
                 // Player profile section
                 Section {
                     if let player = playerStore.currentPlayer {
-                        HStack(spacing: 14) {
-                            ZStack {
-                                Circle()
-                                    .fill(PlayIQColors.gold.opacity(0.2))
-                                    .frame(width: 50, height: 50)
+                        Button(action: { showProfile = true }) {
+                            HStack(spacing: 14) {
+                                ZStack {
+                                    Circle()
+                                        .fill(PlayIQColors.gold.opacity(0.2))
+                                        .frame(width: 50, height: 50)
 
-                                Image(systemName: "person.fill")
-                                    .font(.system(size: 22))
-                                    .foregroundColor(PlayIQColors.gold)
-                            }
-
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text(player.displayName)
-                                    .font(PlayIQFonts.headline)
-                                    .foregroundColor(PlayIQColors.text)
-
-                                Text("@\(player.username)")
-                                    .font(PlayIQFonts.caption)
-                                    .foregroundColor(PlayIQColors.textSecondary)
-
-                                HStack(spacing: 4) {
-                                    Image(systemName: "brain.fill")
-                                        .font(.system(size: 10))
-                                    Text("Cumulative IQ: \(player.cumulativeIQ)")
-                                        .font(PlayIQFonts.caption)
+                                    Image(systemName: "person.fill")
+                                        .font(.system(size: 22))
+                                        .foregroundColor(PlayIQColors.gold)
                                 }
-                                .foregroundColor(PlayIQColors.gold)
+
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text(player.displayName)
+                                        .font(PlayIQFonts.headline)
+                                        .foregroundColor(PlayIQColors.text)
+
+                                    Text("@\(player.username)")
+                                        .font(PlayIQFonts.caption)
+                                        .foregroundColor(PlayIQColors.textSecondary)
+
+                                    HStack(spacing: 4) {
+                                        Image(systemName: "brain.fill")
+                                            .font(.system(size: 10))
+                                        Text("Cumulative IQ: \(player.cumulativeIQ)")
+                                            .font(PlayIQFonts.caption)
+                                    }
+                                    .foregroundColor(PlayIQColors.gold)
+                                }
+
+                                Spacer()
+
+                                Image(systemName: "chevron.right")
+                                    .font(.system(size: 12))
+                                    .foregroundColor(PlayIQColors.textSecondary)
                             }
                         }
                         .listRowBackground(PlayIQColors.card)
@@ -101,11 +110,27 @@ struct MenuView: View {
                                 .foregroundColor(PlayIQColors.textSecondary)
                         }
                         .listRowBackground(PlayIQColors.card)
+
+                        HStack {
+                            Label("Tokens", systemImage: "dollarsign.circle.fill")
+                                .foregroundColor(PlayIQColors.text)
+                            Spacer()
+                            Text("\(gameState.totalIQ)")
+                                .foregroundColor(PlayIQColors.gold)
+                                .font(PlayIQFonts.scoreboard)
+                        }
+                        .listRowBackground(PlayIQColors.card)
                     }
                 }
 
                 // Actions
                 Section("Actions") {
+                    Button(action: { showProfile = true }) {
+                        Label("My Profile", systemImage: "person.crop.circle")
+                            .foregroundColor(PlayIQColors.text)
+                    }
+                    .listRowBackground(PlayIQColors.card)
+
                     Button(action: {
                         dismiss()
                         gameState.changeSport()
@@ -168,6 +193,9 @@ struct MenuView: View {
                 }
             }
             .toolbarColorScheme(.dark, for: .navigationBar)
+            .sheet(isPresented: $showProfile) {
+                ProfileView()
+            }
         }
     }
 }

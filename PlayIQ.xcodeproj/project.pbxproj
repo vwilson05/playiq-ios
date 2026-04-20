@@ -20,6 +20,7 @@
 		585BFF4AEC93E176B5ECD6ED /* GameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77446424028FA4C4A01BAB8C /* GameView.swift */; };
 		8619C3D8C5992432D83A010B /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26BDE459F09AC1E3332AC2F3 /* APIClient.swift */; };
 		A67591F90ECC9A5BB6A8ED4B /* OutcomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 995E15C05B7BF373B6552642 /* OutcomeView.swift */; };
+		D1A2B3C4E5F60718293A4B5C /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1A2B3C4E5F60718293A4B5D /* ProfileView.swift */; };
 		A81EB05EF39669B4B162D711 /* PlayerStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB932F86E20374B839352E45 /* PlayerStore.swift */; };
 		B48542D82E35B2B7AA358308 /* ReviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5D71712A225C2D8B0ABA14A /* ReviewView.swift */; };
 		B76C8965F16C4CA19E8426B4 /* TierPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04A514434550AE6FFDB619D9 /* TierPickerView.swift */; };
@@ -46,6 +47,7 @@
 		7D8287F3BE42227DBB0D364B /* ScoreboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScoreboardView.swift; sourceTree = "<group>"; };
 		96BBF185E82E213B1E304981 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		995E15C05B7BF373B6552642 /* OutcomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutcomeView.swift; sourceTree = "<group>"; };
+		D1A2B3C4E5F60718293A4B5D /* ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
 		A5D71712A225C2D8B0ABA14A /* ReviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewView.swift; sourceTree = "<group>"; };
 		C65E865E3418E1A943B89D6F /* Team.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Team.swift; sourceTree = "<group>"; };
 		CB932F86E20374B839352E45 /* PlayerStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerStore.swift; sourceTree = "<group>"; };
@@ -94,6 +96,7 @@
 				77446424028FA4C4A01BAB8C /* GameView.swift */,
 				69392514726E3BE304CB581F /* MenuView.swift */,
 				995E15C05B7BF373B6552642 /* OutcomeView.swift */,
+				D1A2B3C4E5F60718293A4B5D /* ProfileView.swift */,
 				A5D71712A225C2D8B0ABA14A /* ReviewView.swift */,
 				7D8287F3BE42227DBB0D364B /* ScoreboardView.swift */,
 				E52442C582CE3EE204456524 /* SportPickerView.swift */,
@@ -211,6 +214,7 @@
 				585BFF4AEC93E176B5ECD6ED /* GameView.swift in Sources */,
 				305996BF64D7AA11B996AAD8 /* MenuView.swift in Sources */,
 				A67591F90ECC9A5BB6A8ED4B /* OutcomeView.swift in Sources */,
+				D1A2B3C4E5F60718293A4B5C /* ProfileView.swift in Sources */,
 				2FFF9B32A9EA234521E644AE /* PlayIQApp.swift in Sources */,
 				3BEACFB31734D86F455F66C7 /* Player.swift in Sources */,
 				A81EB05EF39669B4B162D711 /* PlayerStore.swift in Sources */,
@@ -233,7 +237,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 8;
+				CURRENT_PROJECT_VERSION = 9;
 				DEVELOPMENT_TEAM = 6SULXSSZL7;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = PlayIQ/Info.plist;
@@ -379,7 +383,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 8;
+				CURRENT_PROJECT_VERSION = 9;
 				DEVELOPMENT_TEAM = 6SULXSSZL7;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = PlayIQ/Info.plist;

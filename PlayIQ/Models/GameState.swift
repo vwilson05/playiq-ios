@@ -162,7 +162,7 @@ final class GameState: ObservableObject {
         advanceToNode(nodeId)
     }
 
-    func recordOutcome(_ outcome: Outcome) {
+    func recordOutcome(_ outcome: Outcome, category: String = "general") {
         totalIQ += outcome.iqPoints
         scenariosCompleted += 1
 
@@ -170,7 +170,9 @@ final class GameState: ObservableObject {
             nodeId: currentNodeId ?? "unknown",
             choiceId: "outcome",
             result: outcome.result,
-            iqPoints: outcome.iqPoints
+            iqPoints: outcome.iqPoints,
+            category: category,
+            whatToRemember: outcome.result.lowercased() != "great" ? outcome.whatToRemember : nil
         )
         history.append(record)
     }
