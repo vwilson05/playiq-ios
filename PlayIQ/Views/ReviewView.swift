@@ -23,7 +23,7 @@ struct ReviewView: View {
                 HStack(spacing: 6) {
                     Image(systemName: "dollarsign.circle.fill")
                         .font(.system(size: 16))
-                    Text("+\(gameState.totalIQ) tokens earned this round")
+                    Text("+\(gameState.totalTokens) tokens earned this round")
                         .font(PlayIQFonts.headline)
                 }
                 .foregroundColor(PlayIQColors.gold)

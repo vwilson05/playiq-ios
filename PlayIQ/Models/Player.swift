@@ -78,6 +78,8 @@ struct DecisionRecord: Codable, Identifiable {
     let choiceId: String
     let result: String
     let iqPoints: Int
+    let tokensEarned: Int
+    let multiplier: Int
     let category: String
     let whatToRemember: String?
 
@@ -86,15 +88,19 @@ struct DecisionRecord: Codable, Identifiable {
         case choiceId = "choice_id"
         case result
         case iqPoints = "iq_points"
+        case tokensEarned = "tokens_earned"
+        case multiplier
         case category
         case whatToRemember = "what_to_remember"
     }
 
-    init(nodeId: String, choiceId: String, result: String, iqPoints: Int, category: String = "general", whatToRemember: String? = nil) {
+    init(nodeId: String, choiceId: String, result: String, iqPoints: Int, tokensEarned: Int = 0, multiplier: Int = 1, category: String = "general", whatToRemember: String? = nil) {
         self.nodeId = nodeId
         self.choiceId = choiceId
         self.result = result
         self.iqPoints = iqPoints
+        self.tokensEarned = tokensEarned
+        self.multiplier = multiplier
         self.category = category
         self.whatToRemember = whatToRemember
     }

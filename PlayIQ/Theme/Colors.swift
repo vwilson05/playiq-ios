@@ -12,7 +12,7 @@ enum PlayIQColors {
     static let resultGreat = Color(hex: "#22c55e")
     static let resultGood = Color(hex: "#3b82f6")
     static let resultOkay = Color(hex: "#eab308")
-    static let resultBad = Color(hex: "#ef4444")
+    static let resultBad = Color(hex: "#fb923c") // orange — opportunity, not punishment
 
     static let fieldGreen = Color(hex: "#2d5a27")
     static let fieldDirt = Color(hex: "#c4a265")
@@ -33,7 +33,7 @@ enum PlayIQColors {
         case "great": return "star.fill"
         case "good": return "hand.thumbsup.fill"
         case "okay": return "minus.circle.fill"
-        case "bad": return "xmark.circle.fill"
+        case "bad": return "lightbulb.fill" // opportunity to learn
         default: return "questionmark.circle.fill"
         }
     }

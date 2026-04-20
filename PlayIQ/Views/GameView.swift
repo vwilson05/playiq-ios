@@ -123,6 +123,35 @@ struct GameView: View {
                 }
             }
 
+            // Impact multiplier banner
+            if let scenario = gameState.currentScenario,
+               scenario.tokenMultiplier >= 2,
+               let label = scenario.multiplierLabel {
+                HStack(spacing: 8) {
+                    Text(label.uppercased())
+                        .font(.system(size: 11, weight: .bold))
+                        .foregroundColor(PlayIQColors.text)
+                        .tracking(0.5)
+                    Text("\(scenario.tokenMultiplier)x Token Multiplier")
+                        .font(.system(size: 12, weight: .heavy, design: .rounded))
+                        .foregroundColor(PlayIQColors.gold)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 3)
+                        .background(PlayIQColors.gold.opacity(0.15))
+                        .cornerRadius(4)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 10)
+                .background(
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(PlayIQColors.gold.opacity(0.08))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 8)
+                                .stroke(PlayIQColors.gold.opacity(0.25), lineWidth: 1)
+                        )
+                )
+            }
+
             // Narration
             if let narration = node.narration {
                 Text(narration)
@@ -207,7 +236,7 @@ struct GameView: View {
                 let allDone = gameState.scenarioIndex >= gameState.scenarioList.count || (gameState.scenariosCompleted + 1) >= gameState.scenariosPerRound
                 let label = hasMoreNodes ? "Continue" : (allDone ? "See Results" : "Next Scenario")
 
-                OutcomeView(outcome: outcome, buttonLabel: label) {
+                OutcomeView(outcome: outcome, buttonLabel: label, multiplier: gameState.currentScenario?.tokenMultiplier ?? 1) {
                     gameState.recordOutcome(outcome, category: gameState.currentScenario?.role ?? "general")
                     if hasMoreNodes, let next = outcome.next {
                         // More nodes in this scenario — continue
@@ -317,7 +346,7 @@ struct GameHeaderView: View {
             HStack(spacing: 4) {
                 Image(systemName: "dollarsign.circle.fill")
                     .font(.system(size: 12))
-                Text("\(gameState.totalIQ)")
+                Text("\(gameState.totalTokens)")
                     .font(PlayIQFonts.scoreboard)
             }
             .foregroundColor(PlayIQColors.gold.opacity(0.8))

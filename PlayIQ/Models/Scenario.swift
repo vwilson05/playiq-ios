@@ -5,10 +5,39 @@ struct Scenario: Codable, Identifiable {
     let title: String
     let sport: [String]?
     let tier: String?
+    let impact: Int?
     let role: String
     let tags: [String]?
     let setup: GameSetup
     let nodes: [String: ScenarioNode]
+
+    /// Impact multiplier for token calculation (1-5x).
+    /// Uses the JSON `impact` field if present, otherwise calculates from game setup.
+    var tokenMultiplier: Int {
+        if let impact = impact, impact >= 1 { return min(impact, 5) }
+        return Self.calcImpact(from: setup)
+    }
+
+    static func calcImpact(from setup: GameSetup) -> Int {
+        var impact: Double = 1
+        if setup.inning >= 9 { impact += 2 }
+        else if setup.inning >= 7 { impact += 1 }
+        let scoreDiff = abs(setup.score.home - setup.score.away)
+        if scoreDiff <= 1 { impact += 1 }
+        else if scoreDiff <= 2 { impact += 0.5 }
+        if setup.runners.second || setup.runners.third { impact += 1 }
+        if setup.outs == 2 { impact += 0.5 }
+        return min(Int(impact.rounded()), 5)
+    }
+
+    var multiplierLabel: String? {
+        let m = tokenMultiplier
+        if m >= 5 { return "Game-Changing Moment" }
+        if m >= 4 { return "Clutch Time" }
+        if m >= 3 { return "Big Decision" }
+        if m >= 2 { return "Key Play" }
+        return nil
+    }
 }
 
 struct GameSetup: Codable {

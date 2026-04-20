@@ -11,6 +11,7 @@ final class GameState: ObservableObject {
     @Published var currentNodeId: String?
     @Published var history: [DecisionRecord] = []
     @Published var totalIQ: Int = 0
+    @Published var totalTokens: Int = 0
     @Published var scenariosCompleted: Int = 0
     @Published var sessionComplete: Bool = false
     @Published var currentSession: GameSession?
@@ -163,7 +164,11 @@ final class GameState: ObservableObject {
     }
 
     func recordOutcome(_ outcome: Outcome, category: String = "general") {
+        let multiplier = currentScenario?.tokenMultiplier ?? 1
+        let tokensEarned = outcome.iqPoints * multiplier
+
         totalIQ += outcome.iqPoints
+        totalTokens += tokensEarned
         scenariosCompleted += 1
 
         let record = DecisionRecord(
@@ -171,6 +176,8 @@ final class GameState: ObservableObject {
             choiceId: "outcome",
             result: outcome.result,
             iqPoints: outcome.iqPoints,
+            tokensEarned: tokensEarned,
+            multiplier: multiplier,
             category: category,
             whatToRemember: outcome.result.lowercased() != "great" ? outcome.whatToRemember : nil
         )
@@ -181,6 +188,7 @@ final class GameState: ObservableObject {
 
     func startSession(playerId: UUID, isGuest: Bool = false) async {
         totalIQ = 0
+        totalTokens = 0
         scenariosCompleted = 0
         history = []
         sessionComplete = false
@@ -205,6 +213,7 @@ final class GameState: ObservableObject {
 
     func startGuestSession() async {
         totalIQ = 0
+        totalTokens = 0
         scenariosCompleted = 0
         history = []
         sessionComplete = false
@@ -251,6 +260,7 @@ final class GameState: ObservableObject {
         currentNodeId = nil
         history = []
         totalIQ = 0
+        totalTokens = 0
         scenariosCompleted = 0
         sessionComplete = false
         currentSession = nil
@@ -286,6 +296,7 @@ final class GameState: ObservableObject {
         // Reset round state but keep session played IDs
         scenariosCompleted = 0
         totalIQ = 0
+        totalTokens = 0
         history = []
         sessionComplete = false
         currentScenario = nil
@@ -297,6 +308,7 @@ final class GameState: ObservableObject {
         currentNodeId = nil
         history = []
         totalIQ = 0
+        totalTokens = 0
         scenariosCompleted = 0
         sessionComplete = false
         currentSession = nil
@@ -325,7 +337,7 @@ final class GameState: ObservableObject {
         case 70..<90: return "All-Star"
         case 50..<70: return "Starter"
         case 30..<50: return "Rookie"
-        default: return "Bench"
+        default: return "Keep Going"
         }
     }
 }
