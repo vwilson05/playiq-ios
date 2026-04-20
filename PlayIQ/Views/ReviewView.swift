@@ -89,7 +89,7 @@ struct ReviewView: View {
                         gameState.newSession()
                         Task {
                             if let player = playerStore.currentPlayer {
-                                await gameState.startSession(playerId: player.id)
+                                await gameState.startSession(playerId: player.id, isGuest: playerStore.isGuest)
                             }
                         }
                     }) {

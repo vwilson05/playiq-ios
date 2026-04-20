@@ -135,12 +135,45 @@ struct GameView: View {
             if node.type == "decision", let choices = node.choices {
                 VStack(spacing: 10) {
                     ForEach(Array(choices.enumerated()), id: \.element.id) { index, choice in
-                        ChoiceButton(
-                            letter: String(Character(UnicodeScalar(65 + index)!)),
-                            text: choice.text
-                        ) {
-                            withAnimation(.easeInOut(duration: 0.3)) {
-                                gameState.makeChoice(choice)
+                        // Filter by sport if onlyIn is set
+                        if choice.onlyIn == nil || choice.onlyIn == gameState.selectedSport {
+                            if let disabledReason = choice.disabledReason {
+                                // Disabled choice
+                                HStack(spacing: 12) {
+                                    ZStack {
+                                        Circle()
+                                            .fill(PlayIQColors.textSecondary.opacity(0.3))
+                                            .frame(width: 32, height: 32)
+                                        Text(String(Character(UnicodeScalar(65 + index)!)))
+                                            .font(.system(size: 16, weight: .bold, design: .rounded))
+                                            .foregroundColor(PlayIQColors.textSecondary)
+                                    }
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        Text(choice.text)
+                                            .font(PlayIQFonts.body)
+                                            .foregroundColor(PlayIQColors.textSecondary)
+                                        Text(disabledReason)
+                                            .font(PlayIQFonts.caption)
+                                            .foregroundColor(PlayIQColors.textSecondary.opacity(0.7))
+                                    }
+                                    Spacer()
+                                }
+                                .padding(14)
+                                .background(PlayIQColors.card.opacity(0.5))
+                                .cornerRadius(12)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .stroke(PlayIQColors.cardBorder.opacity(0.5), lineWidth: 1)
+                                )
+                            } else {
+                                ChoiceButton(
+                                    letter: String(Character(UnicodeScalar(65 + index)!)),
+                                    text: choice.text
+                                ) {
+                                    withAnimation(.easeInOut(duration: 0.3)) {
+                                        gameState.makeChoice(choice)
+                                    }
+                                }
                             }
                         }
                     }
@@ -169,14 +202,23 @@ struct GameView: View {
 
             // Outcome
             if node.type == "outcome", let outcome = node.outcome {
-                OutcomeView(outcome: outcome) {
+                let hasMoreNodes = outcome.next != nil && outcome.next != "end"
+                let allDone = gameState.scenarioIndex >= gameState.scenarioList.count
+                let label = hasMoreNodes ? "Continue" : (allDone ? "See Results" : "Next Scenario")
+
+                OutcomeView(outcome: outcome, buttonLabel: label) {
                     gameState.recordOutcome(outcome)
-                    if let next = outcome.next {
+                    if hasMoreNodes, let next = outcome.next {
+                        // More nodes in this scenario — continue
                         withAnimation {
                             gameState.advanceToNode(next)
                         }
                     } else {
-                        Task { await gameState.loadNextScenario() }
+                        // Scenario complete (next is nil or "end") — save result and load next
+                        Task {
+                            await gameState.saveCurrentResult()
+                            await gameState.loadNextScenario()
+                        }
                     }
                 }
             }

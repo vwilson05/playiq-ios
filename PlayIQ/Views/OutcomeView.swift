@@ -2,6 +2,7 @@ import SwiftUI
 
 struct OutcomeView: View {
     let outcome: Outcome
+    var buttonLabel: String = "Next Scenario"
     let onContinue: () -> Void
 
     private var resultColor: Color {
@@ -111,7 +112,7 @@ struct OutcomeView: View {
             // Continue button
             Button(action: onContinue) {
                 HStack {
-                    Text("Next Scenario")
+                    Text(buttonLabel)
                         .font(PlayIQFonts.headline)
                     Image(systemName: "arrow.right")
                 }

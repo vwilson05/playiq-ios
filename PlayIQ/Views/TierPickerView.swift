@@ -11,9 +11,9 @@ struct TierInfo: Identifiable {
 private let tiers: [TierInfo] = [
     TierInfo(id: "tball", number: 1, name: "T-Ball", description: "Learn the basics — where to throw, where to run, how to catch", icon: "1.circle.fill"),
     TierInfo(id: "rookie", number: 2, name: "Rookie", description: "Fundamentals — force outs, tagging up, base running decisions", icon: "2.circle.fill"),
-    TierInfo(id: "minors", number: 3, name: "Minors", description: "Game IQ — cutoffs, relays, situational hitting", icon: "3.circle.fill"),
-    TierInfo(id: "majors", number: 4, name: "Majors", description: "Advanced — double plays, pitch sequencing, hit-and-run", icon: "4.circle.fill"),
-    TierInfo(id: "the-show", number: 5, name: "The Show", description: "Elite — squeeze plays, shifts, pitcher/batter chess", icon: "5.circle.fill"),
+    TierInfo(id: "minors", number: 3, name: "Minors", description: "Game IQ — cutoffs, relays, situational hitting, defensive positioning", icon: "3.circle.fill"),
+    TierInfo(id: "majors", number: 4, name: "Majors", description: "Advanced — double plays, pitch sequencing, hit-and-run, defensive schemes", icon: "4.circle.fill"),
+    TierInfo(id: "the-show", number: 5, name: "The Show", description: "Elite — squeeze plays, shifts, pitcher/batter chess, full-game strategy", icon: "5.circle.fill"),
 ]
 
 struct TierPickerView: View {
@@ -66,7 +66,7 @@ struct TierPickerView: View {
         gameState.selectTier(tier)
         Task {
             if let player = playerStore.currentPlayer {
-                await gameState.startSession(playerId: player.id)
+                await gameState.startSession(playerId: player.id, isGuest: playerStore.isGuest)
             }
         }
     }

@@ -108,6 +108,15 @@ struct MenuView: View {
                 Section("Actions") {
                     Button(action: {
                         dismiss()
+                        gameState.changeSport()
+                    }) {
+                        Label("Change Sport", systemImage: "sportscourt.fill")
+                            .foregroundColor(PlayIQColors.text)
+                    }
+                    .listRowBackground(PlayIQColors.card)
+
+                    Button(action: {
+                        dismiss()
                         gameState.changeTeam()
                     }) {
                         Label("Change Team", systemImage: "arrow.triangle.2.circlepath")
@@ -126,10 +135,11 @@ struct MenuView: View {
 
                     Button(action: {
                         dismiss()
-                        gameState.changeSport()
+                        Task { await gameState.endSession() }
+                        gameState.sessionComplete = true
                     }) {
-                        Label("Change Sport", systemImage: "sportscourt.fill")
-                            .foregroundColor(PlayIQColors.text)
+                        Label("End Session", systemImage: "stop.circle.fill")
+                            .foregroundColor(PlayIQColors.resultOkay)
                     }
                     .listRowBackground(PlayIQColors.card)
                 }

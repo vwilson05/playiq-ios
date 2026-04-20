@@ -3,10 +3,10 @@ import Foundation
 struct Scenario: Codable, Identifiable {
     let id: String
     let title: String
-    let sport: [String]
-    let tier: String
+    let sport: [String]?
+    let tier: String?
     let role: String
-    let tags: [String]
+    let tags: [String]?
     let setup: GameSetup
     let nodes: [String: ScenarioNode]
 }
@@ -57,6 +57,8 @@ struct Choice: Codable, Identifiable {
     let id: String
     let text: String
     let nextNode: String
+    let onlyIn: String?
+    let disabledReason: String?
 
     // JSON keys are already camelCase, no mapping needed
 }
@@ -92,7 +94,7 @@ struct KeyTerm: Codable, Identifiable {
 struct ScenarioListItem: Codable, Identifiable {
     let id: String
     let title: String
-    let tier: String
-    let role: String
-    let tags: [String]
+    let tier: String?
+    let role: String?
+    let tags: [String]?
 }

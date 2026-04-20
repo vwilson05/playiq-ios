@@ -160,28 +160,46 @@ final class GameState: ObservableObject {
 
     // MARK: - Session
 
-    func startSession(playerId: UUID) async {
-        guard let tier = selectedTier, let sport = selectedSport else { return }
+    func startSession(playerId: UUID, isGuest: Bool = false) async {
+        totalIQ = 0
+        scenariosCompleted = 0
+        history = []
+        sessionComplete = false
+
+        // Only call API if not a guest
+        if !isGuest, let tier = selectedTier, let sport = selectedSport {
+            do {
+                let session = try await apiClient.createSession(
+                    playerId: playerId,
+                    tier: tier,
+                    sport: sport
+                )
+                currentSession = session
+            } catch {
+                print("Failed to start session: \(error)")
+                // Non-fatal — continue with local play
+            }
+        }
+
+        await loadNextScenario()
+    }
+
+    func saveCurrentResult() async {
+        guard let session = currentSession,
+              let scenario = currentScenario else { return }
+        // Only save if we have a server session (not guest)
+        let lastRecord = history.last
+        let result = SessionResult(
+            scenarioId: scenario.id,
+            iqEarned: lastRecord?.iqPoints ?? 0,
+            result: lastRecord?.result ?? "unknown",
+            decisions: history
+        )
         do {
-            let session = try await apiClient.createSession(
-                playerId: playerId,
-                tier: tier,
-                sport: sport
-            )
-            currentSession = session
-            totalIQ = 0
-            scenariosCompleted = 0
-            history = []
-            sessionComplete = false
-            await loadNextScenario()
+            try await apiClient.saveResult(sessionId: session.id, result: result)
         } catch {
-            print("Failed to start session: \(error)")
-            // Still allow local play
-            totalIQ = 0
-            scenariosCompleted = 0
-            history = []
-            sessionComplete = false
-            await loadNextScenario()
+            print("Failed to save result: \(error)")
+            // Non-fatal
         }
     }
 
