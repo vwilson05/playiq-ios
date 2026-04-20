@@ -278,12 +278,13 @@ struct GameHeaderView: View {
     var body: some View {
         HStack {
             // Logo
-            HStack(spacing: 6) {
-                Image(systemName: "sportscourt.fill")
-                    .foregroundColor(PlayIQColors.gold)
-                Text("PLAY IQ")
-                    .font(.system(size: 16, weight: .black, design: .rounded))
+            HStack(spacing: 2) {
+                Text("PLAY")
+                    .font(.system(size: 16, weight: .black))
                     .foregroundColor(PlayIQColors.text)
+                Text("IQ")
+                    .font(.system(size: 16, weight: .black))
+                    .foregroundColor(PlayIQColors.gold)
             }
 
             Spacer()

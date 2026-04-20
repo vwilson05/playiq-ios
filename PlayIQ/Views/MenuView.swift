@@ -110,7 +110,7 @@ struct MenuView: View {
                         dismiss()
                         gameState.changeSport()
                     }) {
-                        Label("Change Sport", systemImage: "sportscourt.fill")
+                        Label("Change Sport", systemImage: "arrow.triangle.2.circlepath")
                             .foregroundColor(PlayIQColors.text)
                     }
                     .listRowBackground(PlayIQColors.card)
