@@ -56,7 +56,7 @@ final class PlayerStore: ObservableObject {
                 errorMessage = error.localizedDescription
             }
         } catch {
-            errorMessage = "Could not connect to server"
+            errorMessage = "Could not connect to server: \(error.localizedDescription)"
         }
 
         isLoading = false
@@ -99,7 +99,7 @@ final class PlayerStore: ObservableObject {
                 errorMessage = error.localizedDescription
             }
         } catch {
-            errorMessage = "Could not connect to server"
+            errorMessage = "Could not connect to server: \(error.localizedDescription)"
         }
 
         isLoading = false

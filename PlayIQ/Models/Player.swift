@@ -25,6 +25,16 @@ struct Player: Codable, Identifiable {
         self.totalSessions = totalSessions
     }
 
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decode(UUID.self, forKey: .id)
+        username = try container.decode(String.self, forKey: .username)
+        displayName = try container.decode(String.self, forKey: .displayName)
+        avatar = try container.decodeIfPresent(String.self, forKey: .avatar) ?? "default"
+        cumulativeIQ = try container.decodeIfPresent(Int.self, forKey: .cumulativeIQ) ?? 0
+        totalSessions = try container.decodeIfPresent(Int.self, forKey: .totalSessions) ?? 0
+    }
+
     static let guest = Player(
         username: "guest",
         displayName: "Guest",
