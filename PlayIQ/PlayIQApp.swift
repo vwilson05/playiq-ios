@@ -27,12 +27,12 @@ struct RootView: View {
                         .tint(PlayIQColors.gold)
                 } else if playerStore.currentPlayer == nil {
                     AuthView()
+                } else if gameState.selectedSport == nil {
+                    SportPickerView()
                 } else if gameState.selectedTeam == nil {
                     TeamPickerView()
                 } else if gameState.selectedTier == nil {
                     TierPickerView()
-                } else if gameState.selectedSport == nil {
-                    SportPickerView()
                 } else if gameState.sessionComplete {
                     ReviewView()
                 } else {

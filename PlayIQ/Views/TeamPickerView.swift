@@ -7,6 +7,10 @@ struct TeamPickerView: View {
         GridItem(.adaptive(minimum: 100, maximum: 140), spacing: 12)
     ]
 
+    private var isSoftball: Bool {
+        gameState.selectedSport == "softball"
+    }
+
     var body: some View {
         VStack(spacing: 20) {
             // Header
@@ -15,7 +19,7 @@ struct TeamPickerView: View {
                     .font(PlayIQFonts.title)
                     .foregroundColor(PlayIQColors.text)
 
-                Text("Choose your favorite MLB team")
+                Text(isSoftball ? "Choose your favorite softball team" : "Choose your favorite MLB team")
                     .font(PlayIQFonts.callout)
                     .foregroundColor(PlayIQColors.textSecondary)
             }
@@ -24,11 +28,20 @@ struct TeamPickerView: View {
             // Team Grid
             ScrollView {
                 LazyVGrid(columns: columns, spacing: 12) {
-                    ForEach(MLBTeam.allTeams) { team in
-                        TeamCard(team: team)
-                            .onTapGesture {
-                                gameState.selectTeam(team)
-                            }
+                    if isSoftball {
+                        ForEach(SoftballTeam.allTeams) { team in
+                            SoftballTeamCard(team: team)
+                                .onTapGesture {
+                                    gameState.selectSoftballTeam(team)
+                                }
+                        }
+                    } else {
+                        ForEach(MLBTeam.allTeams) { team in
+                            TeamCard(team: team)
+                                .onTapGesture {
+                                    gameState.selectTeam(team)
+                                }
+                        }
                     }
                 }
                 .padding(.horizontal, 16)
@@ -37,6 +50,48 @@ struct TeamPickerView: View {
         }
         .background(PlayIQColors.background.ignoresSafeArea())
         .navigationBarBackButtonHidden()
+        .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                Button(action: { gameState.changeSport() }) {
+                    HStack(spacing: 4) {
+                        Image(systemName: "chevron.left")
+                        Text("Sport")
+                    }
+                    .foregroundColor(PlayIQColors.gold)
+                }
+            }
+        }
+    }
+}
+
+struct SoftballTeamCard: View {
+    let team: SoftballTeam
+
+    var body: some View {
+        VStack(spacing: 6) {
+            Text(team.abbreviation)
+                .font(.system(size: 22, weight: .black, design: .rounded))
+                .foregroundColor(.white)
+
+            Text(team.name)
+                .font(.system(size: 11, weight: .medium))
+                .foregroundColor(.white.opacity(0.85))
+                .lineLimit(1)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 16)
+        .background(
+            LinearGradient(
+                colors: [team.primaryColor, team.primaryColor.opacity(0.8)],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        )
+        .cornerRadius(12)
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(team.secondaryColor.opacity(0.5), lineWidth: 1)
+        )
     }
 }
 

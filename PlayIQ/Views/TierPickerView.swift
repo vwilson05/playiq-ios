@@ -18,6 +18,7 @@ private let tiers: [TierInfo] = [
 
 struct TierPickerView: View {
     @EnvironmentObject var gameState: GameState
+    @EnvironmentObject var playerStore: PlayerStore
 
     var body: some View {
         VStack(spacing: 20) {
@@ -39,7 +40,7 @@ struct TierPickerView: View {
                     ForEach(tiers) { tier in
                         TierCard(tier: tier)
                             .onTapGesture {
-                                gameState.selectTier(tier.id)
+                                selectTier(tier.id)
                             }
                     }
                 }
@@ -57,6 +58,15 @@ struct TierPickerView: View {
                     }
                     .foregroundColor(PlayIQColors.gold)
                 }
+            }
+        }
+    }
+
+    private func selectTier(_ tier: String) {
+        gameState.selectTier(tier)
+        Task {
+            if let player = playerStore.currentPlayer {
+                await gameState.startSession(playerId: player.id)
             }
         }
     }
@@ -119,5 +129,6 @@ struct TierCard: View {
     NavigationStack {
         TierPickerView()
             .environmentObject(GameState())
+            .environmentObject(PlayerStore())
     }
 }

@@ -4,6 +4,7 @@ import SwiftUI
 @MainActor
 final class GameState: ObservableObject {
     @Published var selectedTeam: MLBTeam?
+    @Published var selectedSoftballTeam: SoftballTeam?
     @Published var selectedTier: String?
     @Published var selectedSport: String?
     @Published var currentScenario: Scenario?
@@ -24,12 +25,18 @@ final class GameState: ObservableObject {
     // MARK: - Preferences
 
     func loadPreferences() {
-        if let teamId = defaults.string(forKey: "selectedTeamId"),
-           let team = MLBTeam.allTeams.first(where: { $0.id == teamId }) {
-            selectedTeam = team
+        selectedSport = defaults.string(forKey: "selectedSport")
+        if let teamId = defaults.string(forKey: "selectedTeamId") {
+            if selectedSport == "softball" {
+                if let team = SoftballTeam.allTeams.first(where: { $0.id == teamId }) {
+                    selectedSoftballTeam = team
+                    selectedTeam = MLBTeam(id: team.id, name: team.name, city: team.city, abbreviation: team.abbreviation, primaryHex: team.primaryHex, secondaryHex: team.secondaryHex)
+                }
+            } else if let team = MLBTeam.allTeams.first(where: { $0.id == teamId }) {
+                selectedTeam = team
+            }
         }
         selectedTier = defaults.string(forKey: "selectedTier")
-        selectedSport = defaults.string(forKey: "selectedSport")
     }
 
     func savePreferences() {
@@ -42,6 +49,14 @@ final class GameState: ObservableObject {
 
     func selectTeam(_ team: MLBTeam) {
         selectedTeam = team
+        selectedSoftballTeam = nil
+        savePreferences()
+    }
+
+    func selectSoftballTeam(_ team: SoftballTeam) {
+        selectedSoftballTeam = team
+        // Store as MLBTeam shape so the rest of the app can use selectedTeam
+        selectedTeam = MLBTeam(id: team.id, name: team.name, city: team.city, abbreviation: team.abbreviation, primaryHex: team.primaryHex, secondaryHex: team.secondaryHex)
         savePreferences()
     }
 
@@ -183,6 +198,7 @@ final class GameState: ObservableObject {
 
     func reset() {
         selectedTeam = nil
+        selectedSoftballTeam = nil
         selectedTier = nil
         selectedSport = nil
         currentScenario = nil
@@ -202,6 +218,7 @@ final class GameState: ObservableObject {
 
     func changeTeam() {
         selectedTeam = nil
+        selectedSoftballTeam = nil
         defaults.removeObject(forKey: "selectedTeamId")
     }
 
@@ -212,7 +229,10 @@ final class GameState: ObservableObject {
 
     func changeSport() {
         selectedSport = nil
+        selectedTeam = nil
+        selectedSoftballTeam = nil
         defaults.removeObject(forKey: "selectedSport")
+        defaults.removeObject(forKey: "selectedTeamId")
     }
 
     func newSession() {

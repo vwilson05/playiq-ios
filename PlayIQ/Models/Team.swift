@@ -67,6 +67,40 @@ extension MLBTeam {
     ]
 }
 
+struct SoftballTeam: Identifiable, Codable, Equatable {
+    let id: String
+    let name: String
+    let city: String
+    let abbreviation: String
+    let primaryHex: String
+    let secondaryHex: String
+
+    var primaryColor: Color {
+        Color(hex: primaryHex)
+    }
+
+    var secondaryColor: Color {
+        Color(hex: secondaryHex)
+    }
+
+    static func == (lhs: SoftballTeam, rhs: SoftballTeam) -> Bool {
+        lhs.id == rhs.id
+    }
+}
+
+extension SoftballTeam {
+    static let allTeams: [SoftballTeam] = [
+        SoftballTeam(id: "aux", name: "Athletes Unlimited", city: "Athletes Unlimited", abbreviation: "AUX", primaryHex: "#E5393E", secondaryHex: "#1A1A2E"),
+        SoftballTeam(id: "okc", name: "Spark", city: "Oklahoma City", abbreviation: "OKC", primaryHex: "#FF6F00", secondaryHex: "#FAFAFA"),
+        SoftballTeam(id: "cle-sb", name: "Flame", city: "Cleveland", abbreviation: "CLE", primaryHex: "#D32F2F", secondaryHex: "#FF8F00"),
+        SoftballTeam(id: "tex-sb", name: "Smoke", city: "Texas", abbreviation: "TEX", primaryHex: "#37474F", secondaryHex: "#B0BEC5"),
+        SoftballTeam(id: "fla", name: "Vibe", city: "Florida", abbreviation: "FLA", primaryHex: "#00897B", secondaryHex: "#E0F2F1"),
+        SoftballTeam(id: "cal", name: "Breeze", city: "California", abbreviation: "CAL", primaryHex: "#1565C0", secondaryHex: "#90CAF9"),
+        SoftballTeam(id: "ari-sb", name: "Storm", city: "Arizona", abbreviation: "ARI", primaryHex: "#6A1B9A", secondaryHex: "#CE93D8"),
+        SoftballTeam(id: "ga", name: "Thunder", city: "Georgia", abbreviation: "GA", primaryHex: "#1B5E20", secondaryHex: "#FFD600"),
+    ]
+}
+
 extension Color {
     init(hex: String) {
         let hex = hex.trimmingCharacters(in: CharacterSet(charactersIn: "#"))

@@ -2,7 +2,6 @@ import SwiftUI
 
 struct SportPickerView: View {
     @EnvironmentObject var gameState: GameState
-    @EnvironmentObject var playerStore: PlayerStore
 
     var body: some View {
         VStack(spacing: 32) {
@@ -42,26 +41,11 @@ struct SportPickerView: View {
             Spacer()
         }
         .background(PlayIQColors.background.ignoresSafeArea())
-        .toolbar {
-            ToolbarItem(placement: .topBarLeading) {
-                Button(action: { gameState.changeTier() }) {
-                    HStack(spacing: 4) {
-                        Image(systemName: "chevron.left")
-                        Text("Level")
-                    }
-                    .foregroundColor(PlayIQColors.gold)
-                }
-            }
-        }
+        .navigationBarBackButtonHidden()
     }
 
     private func selectSport(_ sport: String) {
         gameState.selectSport(sport)
-        Task {
-            if let player = playerStore.currentPlayer {
-                await gameState.startSession(playerId: player.id)
-            }
-        }
     }
 }
 
@@ -98,6 +82,5 @@ struct SportCard: View {
     NavigationStack {
         SportPickerView()
             .environmentObject(GameState())
-            .environmentObject(PlayerStore())
     }
 }
