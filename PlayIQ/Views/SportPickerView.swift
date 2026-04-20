@@ -31,7 +31,7 @@ struct SportPickerView: View {
 
                 SportCard(
                     name: "Softball",
-                    icon: "softball.fill",
+                    icon: "baseball",
                     color: Color(hex: "#a855f7")
                 ) {
                     selectSport("softball")

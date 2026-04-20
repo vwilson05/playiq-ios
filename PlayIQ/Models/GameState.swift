@@ -85,7 +85,7 @@ final class GameState: ObservableObject {
                 let item = scenarioList[scenarioIndex]
                 let scenario = try await apiClient.loadScenario(tier: tier, id: item.id)
                 currentScenario = scenario
-                currentNodeId = "start"
+                currentNodeId = "root"
                 scenarioIndex += 1
             } else {
                 // All scenarios done, end session

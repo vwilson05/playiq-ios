@@ -12,15 +12,16 @@ struct AuthView: View {
 
             // Logo
             VStack(spacing: 8) {
-                Image(systemName: "sportscourt.fill")
-                    .font(.system(size: 60))
-                    .foregroundColor(PlayIQColors.gold)
+                HStack(spacing: 4) {
+                    Text("PLAY")
+                        .font(.system(size: 44, weight: .black))
+                        .foregroundColor(PlayIQColors.text)
+                    Text("IQ")
+                        .font(.system(size: 44, weight: .black))
+                        .foregroundColor(PlayIQColors.gold)
+                }
 
-                Text("PLAY IQ")
-                    .font(.system(size: 44, weight: .black, design: .rounded))
-                    .foregroundColor(PlayIQColors.text)
-
-                Text("Learn the Game. Play the Game.")
+                Text("Think the game. Play the game.")
                     .font(PlayIQFonts.callout)
                     .foregroundColor(PlayIQColors.textSecondary)
             }
@@ -122,6 +123,18 @@ struct AuthView: View {
                     .font(PlayIQFonts.callout)
                     .foregroundColor(PlayIQColors.textSecondary)
                     .underline()
+            }
+            .padding(.bottom, 16)
+
+            // Coach login
+            Link(destination: URL(string: "https://app.playiqapp.com/coach")!) {
+                HStack(spacing: 6) {
+                    Image(systemName: "person.2.fill")
+                        .font(.system(size: 14))
+                    Text("I'm a Coach")
+                        .font(PlayIQFonts.callout)
+                }
+                .foregroundColor(PlayIQColors.textSecondary)
             }
             .padding(.bottom, 40)
         }

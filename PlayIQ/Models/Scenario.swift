@@ -18,11 +18,7 @@ struct GameSetup: Codable {
     let score: Score
     let runners: Runners
 
-    enum CodingKeys: String, CodingKey {
-        case inning
-        case topBottom = "top_bottom"
-        case outs, score, runners
-    }
+    // JSON keys are already camelCase, no mapping needed
 }
 
 struct Score: Codable {
@@ -62,10 +58,7 @@ struct Choice: Codable, Identifiable {
     let text: String
     let nextNode: String
 
-    enum CodingKeys: String, CodingKey {
-        case id, text
-        case nextNode = "next_node"
-    }
+    // JSON keys are already camelCase, no mapping needed
 }
 
 struct Outcome: Codable {
@@ -77,13 +70,7 @@ struct Outcome: Codable {
     let keyTerms: [KeyTerm]?
     let next: String?
 
-    enum CodingKeys: String, CodingKey {
-        case result, headline, explanation
-        case whatToRemember = "what_to_remember"
-        case iqPoints = "iq_points"
-        case keyTerms = "key_terms"
-        case next
-    }
+    // JSON keys are already camelCase, no mapping needed
 
     var resultColor: String {
         switch result.lowercased() {
