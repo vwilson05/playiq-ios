@@ -85,8 +85,22 @@ final class GameState: ObservableObject {
                 let item = scenarioList[scenarioIndex]
                 let scenario = try await apiClient.loadScenario(tier: tier, id: item.id)
                 currentScenario = scenario
-                currentNodeId = "root"
                 scenarioIndex += 1
+
+                // Resolve the starting node — skip transition nodes to find the first decision
+                var nodeId = "root"
+                while let node = scenario.nodes[nodeId] {
+                    if node.type == "decision" || node.type == "outcome" {
+                        break
+                    }
+                    // Transition node — follow the next pointer
+                    if let next = node.next {
+                        nodeId = next
+                    } else {
+                        break
+                    }
+                }
+                currentNodeId = nodeId
             } else {
                 // All scenarios done, end session
                 sessionComplete = true
@@ -101,7 +115,19 @@ final class GameState: ObservableObject {
     }
 
     func makeChoice(_ choice: Choice) {
-        advanceToNode(choice.nextNode)
+        // Follow through transition nodes to find the outcome/decision
+        var nodeId = choice.nextNode
+        while let node = currentScenario?.nodes[nodeId] {
+            if node.type == "decision" || node.type == "outcome" {
+                break
+            }
+            if let next = node.next {
+                nodeId = next
+            } else {
+                break
+            }
+        }
+        advanceToNode(nodeId)
     }
 
     func recordOutcome(_ outcome: Outcome) {
