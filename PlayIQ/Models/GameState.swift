@@ -203,6 +203,15 @@ final class GameState: ObservableObject {
         await loadNextScenario()
     }
 
+    func startGuestSession() async {
+        totalIQ = 0
+        scenariosCompleted = 0
+        history = []
+        sessionComplete = false
+        currentSession = nil
+        await loadNextScenario()
+    }
+
     func saveCurrentResult() async {
         guard let session = currentSession,
               let scenario = currentScenario else { return }

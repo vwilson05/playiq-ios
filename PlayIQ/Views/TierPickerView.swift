@@ -67,6 +67,9 @@ struct TierPickerView: View {
         Task {
             if let player = playerStore.currentPlayer {
                 await gameState.startSession(playerId: player.id, isGuest: playerStore.isGuest)
+            } else {
+                // Guest mode — skip API session, just load scenarios
+                await gameState.startGuestSession()
             }
         }
     }
