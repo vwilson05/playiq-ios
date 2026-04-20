@@ -9,11 +9,11 @@ struct TierInfo: Identifiable {
 }
 
 private let tiers: [TierInfo] = [
-    TierInfo(id: "t-ball", number: 1, name: "T-Ball", description: "Learning the basics of baseball", icon: "1.circle.fill"),
-    TierInfo(id: "little-league", number: 2, name: "Little League", description: "Building your baseball knowledge", icon: "2.circle.fill"),
-    TierInfo(id: "high-school", number: 3, name: "High School", description: "Varsity-level situations", icon: "3.circle.fill"),
-    TierInfo(id: "college", number: 4, name: "College", description: "Advanced strategy and thinking", icon: "4.circle.fill"),
-    TierInfo(id: "the-show", number: 5, name: "The Show", description: "Major league decision making", icon: "5.circle.fill"),
+    TierInfo(id: "tball", number: 1, name: "T-Ball", description: "Learn the basics — where to throw, where to run, how to catch", icon: "1.circle.fill"),
+    TierInfo(id: "rookie", number: 2, name: "Rookie", description: "Fundamentals — force outs, tagging up, base running decisions", icon: "2.circle.fill"),
+    TierInfo(id: "minors", number: 3, name: "Minors", description: "Game IQ — cutoffs, relays, situational hitting", icon: "3.circle.fill"),
+    TierInfo(id: "majors", number: 4, name: "Majors", description: "Advanced — double plays, pitch sequencing, hit-and-run", icon: "4.circle.fill"),
+    TierInfo(id: "the-show", number: 5, name: "The Show", description: "Elite — squeeze plays, shifts, pitcher/batter chess", icon: "5.circle.fill"),
 ]
 
 struct TierPickerView: View {
