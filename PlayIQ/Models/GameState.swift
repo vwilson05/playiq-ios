@@ -19,6 +19,9 @@ final class GameState: ObservableObject {
     @Published var scenarioList: [ScenarioListItem] = []
     @Published var scenarioIndex: Int = 0
 
+    let scenariosPerRound = 5
+    var sessionPlayedIds: [String] = []
+
     private let apiClient = APIClient()
     private let defaults = UserDefaults.standard
 
@@ -88,6 +91,13 @@ final class GameState: ObservableObject {
 
     func loadNextScenario() async {
         guard let tier = selectedTier else { return }
+
+        // Round limit reached
+        if scenariosCompleted >= scenariosPerRound {
+            sessionComplete = true
+            return
+        }
+
         isLoadingScenario = true
         defer { isLoadingScenario = false }
 
@@ -96,10 +106,16 @@ final class GameState: ObservableObject {
                 await loadScenarioList()
             }
 
-            if scenarioIndex < scenarioList.count {
+            // Find next scenario that hasn't been played this session
+            while scenarioIndex < scenarioList.count {
                 let item = scenarioList[scenarioIndex]
+                if sessionPlayedIds.contains(item.id) {
+                    scenarioIndex += 1
+                    continue
+                }
                 let scenario = try await apiClient.loadScenario(tier: tier, id: item.id)
                 currentScenario = scenario
+                sessionPlayedIds.append(item.id)
                 scenarioIndex += 1
 
                 // Resolve the starting node — skip transition nodes to find the first decision
@@ -116,10 +132,11 @@ final class GameState: ObservableObject {
                     }
                 }
                 currentNodeId = nodeId
-            } else {
-                // All scenarios done, end session
-                sessionComplete = true
+                return
             }
+
+            // All scenarios exhausted
+            sessionComplete = true
         } catch {
             print("Failed to load scenario: \(error)")
         }
@@ -228,6 +245,7 @@ final class GameState: ObservableObject {
         currentSession = nil
         scenarioList = []
         scenarioIndex = 0
+        sessionPlayedIds = []
 
         defaults.removeObject(forKey: "selectedTeamId")
         defaults.removeObject(forKey: "selectedTier")
@@ -253,6 +271,16 @@ final class GameState: ObservableObject {
         defaults.removeObject(forKey: "selectedTeamId")
     }
 
+    func keepGoing() {
+        // Reset round state but keep session played IDs
+        scenariosCompleted = 0
+        totalIQ = 0
+        history = []
+        sessionComplete = false
+        currentScenario = nil
+        currentNodeId = nil
+    }
+
     func newSession() {
         currentScenario = nil
         currentNodeId = nil
@@ -263,6 +291,7 @@ final class GameState: ObservableObject {
         currentSession = nil
         scenarioList = []
         scenarioIndex = 0
+        sessionPlayedIds = []
     }
 
     // MARK: - Current Node

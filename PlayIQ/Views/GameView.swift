@@ -133,8 +133,9 @@ struct GameView: View {
 
             // Decision choices
             if node.type == "decision", let choices = node.choices {
+                let shuffledChoices = choices.shuffled()
                 VStack(spacing: 10) {
-                    ForEach(Array(choices.enumerated()), id: \.element.id) { index, choice in
+                    ForEach(Array(shuffledChoices.enumerated()), id: \.element.id) { index, choice in
                         // Filter by sport if onlyIn is set
                         if choice.onlyIn == nil || choice.onlyIn == gameState.selectedSport {
                             if let disabledReason = choice.disabledReason {
@@ -203,7 +204,7 @@ struct GameView: View {
             // Outcome
             if node.type == "outcome", let outcome = node.outcome {
                 let hasMoreNodes = outcome.next != nil && outcome.next != "end"
-                let allDone = gameState.scenarioIndex >= gameState.scenarioList.count
+                let allDone = gameState.scenarioIndex >= gameState.scenarioList.count || (gameState.scenariosCompleted + 1) >= gameState.scenariosPerRound
                 let label = hasMoreNodes ? "Continue" : (allDone ? "See Results" : "Next Scenario")
 
                 OutcomeView(outcome: outcome, buttonLabel: label) {

@@ -86,16 +86,14 @@ struct ReviewView: View {
                 // Action buttons
                 VStack(spacing: 12) {
                     Button(action: {
-                        gameState.newSession()
+                        gameState.keepGoing()
                         Task {
-                            if let player = playerStore.currentPlayer {
-                                await gameState.startSession(playerId: player.id, isGuest: playerStore.isGuest)
-                            }
+                            await gameState.loadNextScenario()
                         }
                     }) {
                         HStack {
-                            Image(systemName: "arrow.counterclockwise")
-                            Text("Play Again")
+                            Image(systemName: "flame.fill")
+                            Text("Keep Going")
                                 .font(PlayIQFonts.headline)
                         }
                         .frame(maxWidth: .infinity)
