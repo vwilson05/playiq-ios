@@ -8,17 +8,28 @@ struct TierInfo: Identifiable {
     let icon: String
 }
 
-private let tiers: [TierInfo] = [
-    TierInfo(id: "tball", number: 1, name: "T-Ball", description: "Learn the basics — where to throw, where to run, how to catch", icon: "1.circle.fill"),
-    TierInfo(id: "rookie", number: 2, name: "Rookie", description: "Fundamentals — force outs, tagging up, base running decisions", icon: "2.circle.fill"),
-    TierInfo(id: "minors", number: 3, name: "Minors", description: "Game IQ — cutoffs, relays, situational hitting, defensive positioning", icon: "3.circle.fill"),
-    TierInfo(id: "majors", number: 4, name: "Majors", description: "Advanced — double plays, pitch sequencing, hit-and-run, defensive schemes", icon: "4.circle.fill"),
-    TierInfo(id: "the-show", number: 5, name: "The Show", description: "Elite — squeeze plays, shifts, pitcher/batter chess, full-game strategy", icon: "5.circle.fill"),
-]
-
 struct TierPickerView: View {
     @EnvironmentObject var gameState: GameState
     @EnvironmentObject var playerStore: PlayerStore
+
+    private var tiers: [TierInfo] {
+        let sport = gameState.selectedSport ?? "baseball"
+        let names = GameState.tierNames[sport] ?? GameState.tierNames["baseball"]!
+        let descs = GameState.tierDescriptions[sport] ?? GameState.tierDescriptions["baseball"]!
+        return GameState.tierIds.enumerated().map { index, tierId in
+            TierInfo(
+                id: tierId,
+                number: index + 1,
+                name: index < names.count ? names[index] : tierId.capitalized,
+                description: index < descs.count ? descs[index] : "",
+                icon: "\(index + 1).circle.fill"
+            )
+        }
+    }
+
+    private var backLabel: String {
+        gameState.needsTeamSelection ? "Team" : "Module"
+    }
 
     var body: some View {
         VStack(spacing: 20) {
@@ -51,10 +62,16 @@ struct TierPickerView: View {
         .background(PlayIQColors.background.ignoresSafeArea())
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
-                Button(action: { gameState.changeTeam() }) {
+                Button(action: {
+                    if gameState.needsTeamSelection {
+                        gameState.changeTeam()
+                    } else {
+                        gameState.changeSport()
+                    }
+                }) {
                     HStack(spacing: 4) {
                         Image(systemName: "chevron.left")
-                        Text("Team")
+                        Text(backLabel)
                     }
                     .foregroundColor(PlayIQColors.gold)
                 }
@@ -68,7 +85,7 @@ struct TierPickerView: View {
             if let player = playerStore.currentPlayer {
                 await gameState.startSession(playerId: player.id, isGuest: playerStore.isGuest)
             } else {
-                // Guest mode — skip API session, just load scenarios
+                // Guest mode -- skip API session, just load scenarios
                 await gameState.startGuestSession()
             }
         }

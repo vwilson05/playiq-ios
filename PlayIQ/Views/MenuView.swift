@@ -71,7 +71,7 @@ struct MenuView: View {
                             Label("Level", systemImage: "chart.bar.fill")
                                 .foregroundColor(PlayIQColors.text)
                             Spacer()
-                            Text(tier.replacingOccurrences(of: "-", with: " ").capitalized)
+                            Text(gameState.tierDisplayName(for: tier))
                                 .foregroundColor(PlayIQColors.gold)
                         }
                         .listRowBackground(PlayIQColors.card)
@@ -79,7 +79,7 @@ struct MenuView: View {
 
                     if let sport = gameState.selectedSport {
                         HStack {
-                            Label("Sport", systemImage: "baseball.fill")
+                            Label("Module", systemImage: sportInfo(for: sport)?.icon ?? "gamecontroller.fill")
                                 .foregroundColor(PlayIQColors.text)
                             Spacer()
                             Text(sport.capitalized)
@@ -135,19 +135,21 @@ struct MenuView: View {
                         dismiss()
                         gameState.changeSport()
                     }) {
-                        Label("Change Sport", systemImage: "arrow.triangle.2.circlepath")
+                        Label("Change Module", systemImage: "arrow.triangle.2.circlepath")
                             .foregroundColor(PlayIQColors.text)
                     }
                     .listRowBackground(PlayIQColors.card)
 
-                    Button(action: {
-                        dismiss()
-                        gameState.changeTeam()
-                    }) {
-                        Label("Change Team", systemImage: "arrow.triangle.2.circlepath")
-                            .foregroundColor(PlayIQColors.text)
+                    if gameState.needsTeamSelection {
+                        Button(action: {
+                            dismiss()
+                            gameState.changeTeam()
+                        }) {
+                            Label("Change Team", systemImage: "arrow.triangle.2.circlepath")
+                                .foregroundColor(PlayIQColors.text)
+                        }
+                        .listRowBackground(PlayIQColors.card)
                     }
-                    .listRowBackground(PlayIQColors.card)
 
                     Button(action: {
                         dismiss()

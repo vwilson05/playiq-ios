@@ -29,7 +29,7 @@ struct RootView: View {
                     AuthView()
                 } else if gameState.selectedSport == nil {
                     SportPickerView()
-                } else if gameState.selectedTeam == nil {
+                } else if gameState.needsTeamSelection && gameState.selectedTeam == nil {
                     TeamPickerView()
                 } else if gameState.selectedTier == nil {
                     TierPickerView()

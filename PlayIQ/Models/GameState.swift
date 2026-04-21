@@ -83,7 +83,16 @@ final class GameState: ObservableObject {
     func loadScenarioList() async {
         guard let tier = selectedTier else { return }
         do {
-            scenarioList = try await apiClient.listScenarios(tier: tier)
+            let allScenarios = try await apiClient.listScenarios(tier: tier)
+            // Filter by selected sport
+            if let sport = selectedSport {
+                scenarioList = allScenarios.filter { item in
+                    guard let sportList = item.sport else { return true }
+                    return sportList.contains(sport)
+                }
+            } else {
+                scenarioList = allScenarios
+            }
             scenarioIndex = 0
         } catch {
             print("Failed to load scenario list: \(error)")
@@ -288,8 +297,10 @@ final class GameState: ObservableObject {
         selectedSport = nil
         selectedTeam = nil
         selectedSoftballTeam = nil
+        selectedTier = nil
         defaults.removeObject(forKey: "selectedSport")
         defaults.removeObject(forKey: "selectedTeamId")
+        defaults.removeObject(forKey: "selectedTier")
     }
 
     func keepGoing() {
@@ -328,6 +339,20 @@ final class GameState: ObservableObject {
         currentScenario?.setup
     }
 
+    // MARK: - Sport Helpers
+
+    /// Sports that use the team picker (baseball/softball only)
+    var needsTeamSelection: Bool {
+        guard let sport = selectedSport else { return false }
+        return sport == "baseball" || sport == "softball"
+    }
+
+    /// Sports that show the baseball field + scoreboard
+    var isBaseballSport: Bool {
+        guard let sport = selectedSport else { return false }
+        return sport == "baseball" || sport == "softball"
+    }
+
     // MARK: - IQ Grade
 
     var iqGrade: String {
@@ -339,5 +364,146 @@ final class GameState: ObservableObject {
         case 30..<50: return "Rookie"
         default: return "Keep Going"
         }
+    }
+
+    // MARK: - Sport-Specific Tier Names
+
+    static let tierNames: [String: [String]] = [
+        "baseball":   ["T-Ball", "Rookie", "Minors", "Majors", "The Show"],
+        "softball":   ["T-Ball", "Rookie", "Minors", "Majors", "The Show"],
+        "chess":      ["Pawn", "Knight", "Bishop", "Rook", "Queen"],
+        "basketball": ["Rec League", "JV", "Varsity", "College", "Pro"],
+        "football":   ["Flag", "Pee Wee", "JV", "Varsity", "Pro"],
+        "soccer":     ["U6", "U8", "U10", "U12", "Academy"],
+        "hockey":     ["Learn to Skate", "Mite", "Bantam", "Junior", "Pro"],
+        "tennis":     ["Rally", "Club", "Junior", "Challenger", "Grand Slam"],
+        "golf":       ["First Tee", "Junior", "Club", "Amateur", "Tour Pro"],
+        "money":      ["Piggy Bank", "Allowance", "Smart Shopper", "Entrepreneur", "Investor"],
+        "coding":     ["Blocks", "Scratch", "Builder", "Hacker", "Dev"],
+        "detective":  ["Clue Finder", "Junior Detective", "Investigator", "Case Solver", "Master Detective"],
+        "survival":   ["Safety Star", "Trail Scout", "Wilderness Guide", "Ranger", "Survivor"],
+        "science":    ["Observer", "Questioner", "Experimenter", "Analyst", "Scientist"],
+        "social":     ["Friend", "Buddy", "Team Player", "Leader", "Mentor"],
+        "history":    ["Time Traveler", "Explorer", "Governor", "Changemaker", "World Shaper"],
+    ]
+
+    static let tierIds = ["tball", "rookie", "minors", "majors", "the-show"]
+
+    static let tierDescriptions: [String: [String]] = [
+        "baseball":   [
+            "Learn the basics -- where to throw, where to run, how to catch",
+            "Fundamentals -- force outs, tagging up, base running decisions",
+            "Game IQ -- cutoffs, relays, situational hitting, defensive positioning",
+            "Advanced -- double plays, pitch sequencing, hit-and-run, defensive schemes",
+            "Elite -- squeeze plays, shifts, pitcher/batter chess, full-game strategy",
+        ],
+        "basketball": [
+            "Learn the basics -- passing, dribbling, simple plays",
+            "Fundamentals -- pick and roll, spacing, fast breaks",
+            "Game IQ -- plays, rotations, situational decisions",
+            "Advanced -- complex sets, matchup hunting, clock management",
+            "Elite -- full-court strategy, adjustments, championship moments",
+        ],
+        "football": [
+            "Learn the basics -- positions, simple plays, flag rules",
+            "Fundamentals -- formations, basic reads, tackle decisions",
+            "Game IQ -- play calling, defensive reads, situational football",
+            "Advanced -- audibles, blitz recognition, two-minute drill",
+            "Elite -- full game management, adjustments, championship moments",
+        ],
+        "soccer": [
+            "Learn the basics -- passing, positions, simple plays",
+            "Fundamentals -- formations, throw-ins, corner kicks",
+            "Game IQ -- through balls, offsides trap, set pieces",
+            "Advanced -- pressing, counter-attacks, tactical switches",
+            "Elite -- full match strategy, formation changes, tournament play",
+        ],
+        "hockey": [
+            "Learn the basics -- skating, puck handling, positions",
+            "Fundamentals -- passing, face-offs, line changes",
+            "Game IQ -- power plays, breakouts, defensive zone coverage",
+            "Advanced -- systems play, penalty kill, special teams",
+            "Elite -- full game strategy, matchups, playoff intensity",
+        ],
+        "chess": [
+            "Learn the basics -- how pieces move, simple captures",
+            "Fundamentals -- basic tactics, pins, forks",
+            "Game IQ -- opening principles, middle game plans",
+            "Advanced -- complex tactics, endgame technique",
+            "Elite -- deep strategy, master-level combinations",
+        ],
+        "tennis": [
+            "Learn the basics -- strokes, scoring, court positions",
+            "Fundamentals -- serve placement, rally consistency",
+            "Game IQ -- approach shots, net play, patterns",
+            "Advanced -- tactical serving, shot selection under pressure",
+            "Elite -- full match strategy, mental game, tour-level play",
+        ],
+        "golf": [
+            "Learn the basics -- grip, stance, club selection",
+            "Fundamentals -- course management, putting basics",
+            "Game IQ -- shot shaping, green reading, strategy",
+            "Advanced -- risk/reward decisions, tournament pressure",
+            "Elite -- full course management, tour-level decisions",
+        ],
+        "money": [
+            "Learn the basics -- coins, saving, needs vs wants",
+            "Fundamentals -- budgeting, earning, spending wisely",
+            "Game IQ -- comparison shopping, interest, value",
+            "Advanced -- business basics, investing concepts, profit",
+            "Elite -- portfolios, compound growth, financial planning",
+        ],
+        "coding": [
+            "Learn the basics -- sequences, loops, simple logic",
+            "Fundamentals -- visual programming, events, variables",
+            "Game IQ -- functions, data types, debugging",
+            "Advanced -- algorithms, APIs, real-world projects",
+            "Elite -- system design, optimization, production code",
+        ],
+        "detective": [
+            "Learn the basics -- observation, clue spotting",
+            "Fundamentals -- evidence gathering, witness interviews",
+            "Game IQ -- deduction, connecting evidence, timelines",
+            "Advanced -- complex cases, red herrings, forensics",
+            "Elite -- master deduction, cold cases, criminal profiling",
+        ],
+        "survival": [
+            "Learn the basics -- safety rules, emergency contacts",
+            "Fundamentals -- trail navigation, weather awareness",
+            "Game IQ -- shelter building, water finding, fire safety",
+            "Advanced -- wilderness first aid, animal encounters",
+            "Elite -- extreme conditions, multi-day survival, rescue ops",
+        ],
+        "science": [
+            "Learn the basics -- observation, asking questions",
+            "Fundamentals -- hypothesis, simple experiments",
+            "Game IQ -- variables, measurement, data collection",
+            "Advanced -- analysis, conclusions, scientific method",
+            "Elite -- research design, peer review, discovery",
+        ],
+        "social": [
+            "Learn the basics -- sharing, taking turns, being kind",
+            "Fundamentals -- teamwork, empathy, communication",
+            "Game IQ -- conflict resolution, group dynamics",
+            "Advanced -- leadership, mentoring, public speaking",
+            "Elite -- community building, negotiation, influence",
+        ],
+        "history": [
+            "Learn the basics -- timelines, famous people, key events",
+            "Fundamentals -- cause and effect, primary sources",
+            "Game IQ -- governance, trade, cultural exchange",
+            "Advanced -- social movements, revolution, reform",
+            "Elite -- geopolitics, historiography, shaping the future",
+        ],
+    ]
+
+    func tierDisplayName(for tierId: String) -> String {
+        guard let sport = selectedSport,
+              let names = GameState.tierNames[sport],
+              let index = GameState.tierIds.firstIndex(of: tierId),
+              index < names.count else {
+            return tierId.replacingOccurrences(of: "-", with: " ").capitalized
+        }
+        return names[index]
     }
 }

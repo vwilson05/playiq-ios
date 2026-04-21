@@ -32,7 +32,7 @@ struct GameView: View {
             } else {
                 Spacer()
                 VStack(spacing: 16) {
-                    Image(systemName: "baseball.diamond.bases")
+                    Image(systemName: sportIconName)
                         .font(.system(size: 48))
                         .foregroundColor(PlayIQColors.textSecondary)
                     Text("No scenario loaded")
@@ -58,6 +58,10 @@ struct GameView: View {
         }
     }
 
+    private var sportIconName: String {
+        sportInfo(for: gameState.selectedSport ?? "baseball")?.icon ?? "questionmark.circle"
+    }
+
     @ViewBuilder
     private func iPadLayout(node: ScenarioNode) -> some View {
         HStack(spacing: 0) {
@@ -68,19 +72,21 @@ struct GameView: View {
             }
             .frame(maxWidth: .infinity)
 
-            // Right: Field + Scoreboard
-            VStack(spacing: 16) {
-                Spacer()
-                FieldView(setup: gameState.currentSetup)
-                ScoreboardView(setup: gameState.currentSetup)
-                if let setup = gameState.currentSetup {
-                    runnersLabel(setup: setup)
+            // Right: Field + Scoreboard (baseball/softball only)
+            if gameState.isBaseballSport {
+                VStack(spacing: 16) {
+                    Spacer()
+                    FieldView(setup: gameState.currentSetup)
+                    ScoreboardView(setup: gameState.currentSetup)
+                    if let setup = gameState.currentSetup {
+                        runnersLabel(setup: setup)
+                    }
+                    Spacer()
                 }
-                Spacer()
+                .frame(width: 340)
+                .padding(16)
+                .background(PlayIQColors.card.opacity(0.5))
             }
-            .frame(width: 340)
-            .padding(16)
-            .background(PlayIQColors.card.opacity(0.5))
         }
     }
 
@@ -88,18 +94,25 @@ struct GameView: View {
     private func iPhoneLayout(node: ScenarioNode) -> some View {
         ScrollView {
             VStack(spacing: 16) {
-                // Compact field + scoreboard
-                HStack(alignment: .top, spacing: 12) {
-                    FieldView(setup: gameState.currentSetup, compact: true)
-                    VStack(spacing: 8) {
-                        ScoreboardView(setup: gameState.currentSetup, compact: true)
-                        if let setup = gameState.currentSetup {
-                            runnersLabel(setup: setup)
+                if gameState.isBaseballSport {
+                    // Compact field + scoreboard for baseball/softball
+                    HStack(alignment: .top, spacing: 12) {
+                        FieldView(setup: gameState.currentSetup, compact: true)
+                        VStack(spacing: 8) {
+                            ScoreboardView(setup: gameState.currentSetup, compact: true)
+                            if let setup = gameState.currentSetup {
+                                runnersLabel(setup: setup)
+                            }
                         }
                     }
+                    .padding(.horizontal, 16)
+                    .padding(.top, 8)
+                } else {
+                    // Context bar for non-baseball sports
+                    SportContextBar(sport: gameState.selectedSport ?? "", setup: gameState.currentSetup)
+                        .padding(.horizontal, 16)
+                        .padding(.top, 8)
                 }
-                .padding(.horizontal, 16)
-                .padding(.top, 8)
 
                 // Scenario content
                 scenarioContent(node: node)
@@ -320,7 +333,7 @@ struct GameHeaderView: View {
 
             // Tier badge
             if let tier = gameState.selectedTier {
-                Text(tier.replacingOccurrences(of: "-", with: " ").capitalized)
+                Text(gameState.tierDisplayName(for: tier))
                     .font(PlayIQFonts.caption)
                     .foregroundColor(PlayIQColors.gold)
                     .padding(.horizontal, 10)
@@ -365,6 +378,93 @@ struct GameHeaderView: View {
         .padding(.horizontal, 16)
         .padding(.vertical, 10)
         .background(PlayIQColors.card.opacity(0.8))
+    }
+}
+
+// MARK: - Sport Context Bar (non-baseball sports)
+
+struct SportContextBar: View {
+    let sport: String
+    let setup: GameSetup?
+
+    private var info: SportInfo? {
+        sportInfo(for: sport)
+    }
+
+    var body: some View {
+        HStack(spacing: 12) {
+            if let info = info {
+                Image(systemName: info.icon)
+                    .font(.system(size: 18))
+                    .foregroundColor(info.color)
+
+                Text(info.name)
+                    .font(PlayIQFonts.headline)
+                    .foregroundColor(PlayIQColors.text)
+            }
+
+            Spacer()
+
+            // Show setup context if available
+            if let setup = setup {
+                if setup.inning > 0 {
+                    contextLabel(for: sport, setup: setup)
+                }
+            }
+        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 10)
+        .background(PlayIQColors.card)
+        .cornerRadius(10)
+        .overlay(
+            RoundedRectangle(cornerRadius: 10)
+                .stroke(PlayIQColors.cardBorder, lineWidth: 1)
+        )
+    }
+
+    @ViewBuilder
+    private func contextLabel(for sport: String, setup: GameSetup) -> some View {
+        switch sport {
+        case "basketball":
+            HStack(spacing: 8) {
+                Text("Q\(setup.inning)")
+                    .font(PlayIQFonts.scoreboard)
+                    .foregroundColor(PlayIQColors.gold)
+                Text("\(setup.score.home)-\(setup.score.away)")
+                    .font(PlayIQFonts.scoreboard)
+                    .foregroundColor(PlayIQColors.text)
+            }
+        case "football":
+            HStack(spacing: 8) {
+                Text("Q\(setup.inning)")
+                    .font(PlayIQFonts.scoreboard)
+                    .foregroundColor(PlayIQColors.gold)
+                Text("\(setup.score.home)-\(setup.score.away)")
+                    .font(PlayIQFonts.scoreboard)
+                    .foregroundColor(PlayIQColors.text)
+            }
+        case "hockey":
+            HStack(spacing: 8) {
+                Text("P\(setup.inning)")
+                    .font(PlayIQFonts.scoreboard)
+                    .foregroundColor(PlayIQColors.gold)
+                Text("\(setup.score.home)-\(setup.score.away)")
+                    .font(PlayIQFonts.scoreboard)
+                    .foregroundColor(PlayIQColors.text)
+            }
+        case "soccer":
+            HStack(spacing: 8) {
+                Text(setup.inning <= 45 ? "1st Half" : "2nd Half")
+                    .font(PlayIQFonts.caption)
+                    .foregroundColor(PlayIQColors.gold)
+                Text("\(setup.score.home)-\(setup.score.away)")
+                    .font(PlayIQFonts.scoreboard)
+                    .foregroundColor(PlayIQColors.text)
+            }
+        default:
+            // Non-sport modules: no score context
+            EmptyView()
+        }
     }
 }
 
