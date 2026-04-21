@@ -30,21 +30,23 @@ final class PlayerStore: ObservableObject {
 
             // Refresh from API in background
             Task {
-                await refreshPlayer(username: player.username)
+                await refreshPlayer(id: player.id)
             }
         } catch {
             isLoading = false
         }
     }
 
+    @Published var successMessage: String?
+
     // MARK: - Login
 
-    func login(username: String) async {
+    func login(username: String, password: String) async {
         isLoading = true
         errorMessage = nil
 
         do {
-            let player = try await apiClient.login(username: username)
+            let player = try await apiClient.login(username: username, password: password)
             currentPlayer = player
             isGuest = false
             savePlayer(player)
@@ -52,6 +54,8 @@ final class PlayerStore: ObservableObject {
             switch error {
             case .httpError(let code) where code == 404:
                 errorMessage = "Player not found. Try signing up!"
+            case .httpError(let code) where code == 401:
+                errorMessage = "Wrong password"
             default:
                 errorMessage = error.localizedDescription
             }
@@ -64,12 +68,13 @@ final class PlayerStore: ObservableObject {
 
     // MARK: - Signup
 
-    func signup(username: String, displayName: String) async {
+    func signup(username: String, displayName: String, password: String, parentEmail: String) async {
         isLoading = true
         errorMessage = nil
 
         let trimmedUsername = username.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         let trimmedDisplayName = displayName.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmedEmail = parentEmail.trimmingCharacters(in: .whitespacesAndNewlines)
 
         guard !trimmedUsername.isEmpty else {
             errorMessage = "Username cannot be empty"
@@ -83,10 +88,18 @@ final class PlayerStore: ObservableObject {
             return
         }
 
+        guard password.count >= 4 else {
+            errorMessage = "Password must be at least 4 characters"
+            isLoading = false
+            return
+        }
+
         do {
             let player = try await apiClient.createPlayer(
                 username: trimmedUsername,
-                displayName: trimmedDisplayName.isEmpty ? trimmedUsername : trimmedDisplayName
+                displayName: trimmedDisplayName.isEmpty ? trimmedUsername : trimmedDisplayName,
+                password: password,
+                parentEmail: trimmedEmail.isEmpty ? nil : trimmedEmail
             )
             currentPlayer = player
             isGuest = false
@@ -103,6 +116,54 @@ final class PlayerStore: ObservableObject {
         }
 
         isLoading = false
+    }
+
+    // MARK: - Forgot Password
+
+    func forgotPassword(username: String) async {
+        isLoading = true
+        errorMessage = nil
+        successMessage = nil
+
+        do {
+            let _ = try await apiClient.forgotPassword(username: username)
+            successMessage = "If that account has a parent email, a reset code was sent."
+        } catch {
+            errorMessage = "Could not connect to server"
+        }
+
+        isLoading = false
+    }
+
+    // MARK: - Reset Password
+
+    func resetPassword(username: String, code: String, newPassword: String) async -> Bool {
+        isLoading = true
+        errorMessage = nil
+
+        guard newPassword.count >= 4 else {
+            errorMessage = "Password must be at least 4 characters"
+            isLoading = false
+            return false
+        }
+
+        do {
+            let _ = try await apiClient.resetPassword(username: username, code: code, newPassword: newPassword)
+            isLoading = false
+            return true
+        } catch let error as APIError {
+            switch error {
+            case .httpError:
+                errorMessage = "Invalid or expired code"
+            default:
+                errorMessage = error.localizedDescription
+            }
+        } catch {
+            errorMessage = "Could not connect to server"
+        }
+
+        isLoading = false
+        return false
     }
 
     // MARK: - Guest Mode
@@ -133,9 +194,17 @@ final class PlayerStore: ObservableObject {
         }
     }
 
-    private func refreshPlayer(username: String) async {
+    private func refreshPlayer(id: UUID) async {
         do {
-            let player = try await apiClient.login(username: username)
+            let profile = try await apiClient.fetchPlayerProfile(id: id)
+            let player = Player(
+                id: profile.id,
+                username: profile.username,
+                displayName: profile.displayName,
+                avatar: profile.avatar,
+                cumulativeIQ: profile.cumulativeIQ,
+                totalSessions: profile.totalSessions
+            )
             currentPlayer = player
             savePlayer(player)
         } catch {

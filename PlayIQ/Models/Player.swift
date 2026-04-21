@@ -46,16 +46,40 @@ struct Player: Codable, Identifiable {
 
 struct PlayerLoginRequest: Codable {
     let username: String
+    let password: String
 }
 
 struct PlayerCreateRequest: Codable {
     let username: String
     let displayName: String
+    let password: String
+    let parentEmail: String?
 
     enum CodingKeys: String, CodingKey {
-        case username
+        case username, password
         case displayName = "display_name"
+        case parentEmail = "parent_email"
     }
+}
+
+struct ForgotPasswordRequest: Codable {
+    let username: String
+}
+
+struct ResetPasswordRequest: Codable {
+    let username: String
+    let code: String
+    let newPassword: String
+
+    enum CodingKeys: String, CodingKey {
+        case username, code
+        case newPassword = "new_password"
+    }
+}
+
+struct MessageResponse: Codable {
+    let message: String?
+    let error: String?
 }
 
 struct SessionCreate: Codable {

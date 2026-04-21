@@ -32,13 +32,13 @@ final class APIClient {
 
     // MARK: - Players
 
-    func createPlayer(username: String, displayName: String) async throws -> Player {
+    func createPlayer(username: String, displayName: String, password: String, parentEmail: String?) async throws -> Player {
         let url = URL(string: "\(baseURL)/api/players")!
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
 
-        let body = PlayerCreateRequest(username: username, displayName: displayName)
+        let body = PlayerCreateRequest(username: username, displayName: displayName, password: password, parentEmail: parentEmail)
         request.httpBody = try JSONEncoder().encode(body)
 
         let (data, response) = try await session.data(for: request)
@@ -46,18 +46,46 @@ final class APIClient {
         return try decoder.decode(Player.self, from: data)
     }
 
-    func login(username: String) async throws -> Player {
+    func login(username: String, password: String) async throws -> Player {
         let url = URL(string: "\(baseURL)/api/players/login")!
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
 
-        let body = PlayerLoginRequest(username: username)
+        let body = PlayerLoginRequest(username: username, password: password)
         request.httpBody = try JSONEncoder().encode(body)
 
         let (data, response) = try await session.data(for: request)
         try validateResponse(response)
         return try decoder.decode(Player.self, from: data)
+    }
+
+    func forgotPassword(username: String) async throws -> MessageResponse {
+        let url = URL(string: "\(baseURL)/api/players/forgot-password")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+
+        let body = ForgotPasswordRequest(username: username)
+        request.httpBody = try JSONEncoder().encode(body)
+
+        let (data, response) = try await session.data(for: request)
+        try validateResponse(response)
+        return try decoder.decode(MessageResponse.self, from: data)
+    }
+
+    func resetPassword(username: String, code: String, newPassword: String) async throws -> MessageResponse {
+        let url = URL(string: "\(baseURL)/api/players/reset-password")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+
+        let body = ResetPasswordRequest(username: username, code: code, newPassword: newPassword)
+        request.httpBody = try JSONEncoder().encode(body)
+
+        let (data, response) = try await session.data(for: request)
+        try validateResponse(response)
+        return try decoder.decode(MessageResponse.self, from: data)
     }
 
     // MARK: - Sessions
