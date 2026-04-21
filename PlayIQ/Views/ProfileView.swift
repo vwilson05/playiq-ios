@@ -363,6 +363,50 @@ struct ProfileView: View {
             .padding(16)
             .background(PlayIQColors.card)
             .cornerRadius(12)
+
+            // Action buttons
+            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
+                Button(action: {
+                    dismiss()
+                    gameState.newSession()
+                    gameState.changeTier()
+                }) {
+                    HStack(spacing: 6) {
+                        Image(systemName: "play.fill")
+                            .font(.system(size: 13))
+                        Text("Play Session")
+                            .font(PlayIQFonts.headline)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(12)
+                    .background(PlayIQColors.gold)
+                    .foregroundColor(PlayIQColors.background)
+                    .cornerRadius(10)
+                }
+
+                Button(action: {
+                    dismiss()
+                    gameState.newSession()
+                    gameState.changeSport()
+                }) {
+                    HStack(spacing: 6) {
+                        Image(systemName: "sportscourt.fill")
+                            .font(.system(size: 13))
+                        Text("New Sport")
+                            .font(PlayIQFonts.headline)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(12)
+                    .background(PlayIQColors.card)
+                    .foregroundColor(PlayIQColors.text)
+                    .cornerRadius(10)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 10)
+                            .stroke(PlayIQColors.cardBorder, lineWidth: 1)
+                    )
+                }
+            }
+            .padding(.top, 8)
         }
     }
 

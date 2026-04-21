@@ -17,6 +17,7 @@ final class GameState: ObservableObject {
     @Published var currentSession: GameSession?
     @Published var isLoadingScenario: Bool = false
     @Published var showMenu: Bool = false
+    @Published var showProfile: Bool = false
     @Published var scenarioList: [ScenarioListItem] = []
     @Published var scenarioIndex: Int = 0
 

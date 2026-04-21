@@ -182,43 +182,26 @@ struct ReviewView: View {
                 }
 
                 // Action buttons
-                VStack(spacing: 12) {
-                    Button(action: {
+                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
+                    reviewButton(icon: "flame.fill", title: "Keep Going", isPrimary: true) {
                         gameState.keepGoing()
                         Task {
                             await gameState.loadNextScenario()
                         }
-                    }) {
-                        HStack {
-                            Image(systemName: "flame.fill")
-                            Text("Keep Going")
-                                .font(PlayIQFonts.headline)
-                        }
-                        .frame(maxWidth: .infinity)
-                        .padding(14)
-                        .background(PlayIQColors.gold)
-                        .foregroundColor(PlayIQColors.background)
-                        .cornerRadius(10)
                     }
 
-                    Button(action: {
+                    reviewButton(icon: "slider.horizontal.3", title: "Change Level", isPrimary: false) {
                         gameState.newSession()
                         gameState.changeTier()
-                    }) {
-                        HStack {
-                            Image(systemName: "slider.horizontal.3")
-                            Text("Change Level")
-                                .font(PlayIQFonts.headline)
-                        }
-                        .frame(maxWidth: .infinity)
-                        .padding(14)
-                        .background(PlayIQColors.card)
-                        .foregroundColor(PlayIQColors.text)
-                        .cornerRadius(10)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 10)
-                                .stroke(PlayIQColors.cardBorder, lineWidth: 1)
-                        )
+                    }
+
+                    reviewButton(icon: "sportscourt.fill", title: "New Sport", isPrimary: false) {
+                        gameState.newSession()
+                        gameState.changeSport()
+                    }
+
+                    reviewButton(icon: "person.crop.circle.fill", title: "My Dashboard", isPrimary: false) {
+                        gameState.showProfile = true
                     }
                 }
                 .padding(.top, 8)
@@ -231,9 +214,34 @@ struct ReviewView: View {
         .onAppear {
             Task { await gameState.endSession() }
         }
+        .sheet(isPresented: $gameState.showProfile) {
+            ProfileView()
+                .environmentObject(gameState)
+                .environmentObject(playerStore)
+        }
     }
 
     // MARK: - Computed Properties
+
+    private func reviewButton(icon: String, title: String, isPrimary: Bool, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            HStack(spacing: 6) {
+                Image(systemName: icon)
+                    .font(.system(size: 13))
+                Text(title)
+                    .font(PlayIQFonts.headline)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(12)
+            .background(isPrimary ? PlayIQColors.gold : PlayIQColors.card)
+            .foregroundColor(isPrimary ? PlayIQColors.background : PlayIQColors.text)
+            .cornerRadius(10)
+            .overlay(
+                RoundedRectangle(cornerRadius: 10)
+                    .stroke(isPrimary ? Color.clear : PlayIQColors.cardBorder, lineWidth: 1)
+            )
+        }
+    }
 
     private var gradeColor: Color {
         switch gameState.iqGrade {
