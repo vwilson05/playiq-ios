@@ -76,11 +76,19 @@ final class APIClient {
         return try decoder.decode(GameSession.self, from: data)
     }
 
-    func endSession(id: UUID) async throws {
+    func endSession(id: UUID, totalIQ: Int = 0, grade: String? = nil, scenariosPlayed: Int = 0, totalTokens: Int = 0) async throws {
         let url = URL(string: "\(baseURL)/api/sessions/\(id.uuidString)")!
         var request = URLRequest(url: url)
         request.httpMethod = "PUT"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+
+        var body: [String: Any] = [
+            "total_iq": totalIQ,
+            "scenarios_played": scenariosPlayed,
+            "total_tokens": totalTokens,
+        ]
+        if let grade = grade { body["grade"] = grade }
+        request.httpBody = try JSONSerialization.data(withJSONObject: body)
 
         let (_, response) = try await session.data(for: request)
         try validateResponse(response)

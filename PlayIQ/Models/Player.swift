@@ -141,15 +141,42 @@ struct PlayerProfile: Codable {
     let displayName: String
     let avatar: String
     let cumulativeIQ: Int
+    let totalTokens: Int?
     let totalSessions: Int
     let categories: [CategoryMastery]?
+    let modules: [String: ModuleStats]?
+    let sportCategories: [String: SportCategoryStats]?
 
     enum CodingKeys: String, CodingKey {
-        case id, username, avatar, categories
+        case id, username, avatar, categories, modules
         case displayName = "display_name"
         case cumulativeIQ = "cumulative_iq"
+        case totalTokens = "total_tokens"
         case totalSessions = "total_sessions"
+        case sportCategories = "sport_categories"
     }
+}
+
+struct ModuleStats: Codable {
+    let sessions: Int
+    let iq: Int
+    let scenariosPlayed: Int
+    let great: Int
+    let good: Int
+    let okay: Int
+    let bad: Int
+    let masteryPct: Int
+
+    enum CodingKeys: String, CodingKey {
+        case sessions, iq, great, good, okay, bad
+        case scenariosPlayed = "scenarios_played"
+        case masteryPct = "mastery_pct"
+    }
+}
+
+struct SportCategoryStats: Codable {
+    let iq: Int
+    let sessions: Int
 }
 
 struct CategoryMastery: Codable, Identifiable {

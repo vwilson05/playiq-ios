@@ -252,7 +252,13 @@ final class GameState: ObservableObject {
     func endSession() async {
         guard let session = currentSession else { return }
         do {
-            try await apiClient.endSession(id: session.id)
+            try await apiClient.endSession(
+                id: session.id,
+                totalIQ: totalIQ,
+                grade: iqGrade,
+                scenariosPlayed: scenariosCompleted,
+                totalTokens: totalTokens
+            )
         } catch {
             print("Failed to end session: \(error)")
         }

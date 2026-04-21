@@ -172,7 +172,7 @@ struct ProfileView: View {
                 HStack(spacing: 8) {
                     Image(systemName: "dollarsign.circle.fill")
                         .font(.system(size: 20))
-                    Text("Token Balance: \(profile?.cumulativeIQ ?? playerStore.currentPlayer?.cumulativeIQ ?? 0)")
+                    Text("Lifetime Tokens: \(profile?.totalTokens ?? profile?.cumulativeIQ ?? 0)")
                         .font(PlayIQFonts.headline)
                 }
                 .foregroundColor(PlayIQColors.gold)
@@ -190,10 +190,68 @@ struct ProfileView: View {
                     .stroke(PlayIQColors.gold.opacity(0.3), lineWidth: 1)
             )
 
-            // Category Mastery
+            // Sport Categories (Sports, Strategy, Life Skills, etc.)
+            if let sportCats = profile?.sportCategories, !sportCats.isEmpty {
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("Categories")
+                        .font(PlayIQFonts.headline)
+                        .foregroundColor(PlayIQColors.text)
+
+                    FlowLayout(spacing: 8) {
+                        ForEach(Array(sportCats.keys.sorted()), id: \.self) { key in
+                            if let stats = sportCats[key] {
+                                HStack(spacing: 6) {
+                                    Text(key)
+                                        .font(PlayIQFonts.caption)
+                                        .foregroundColor(PlayIQColors.text)
+                                    Text("\(stats.iq) IQ")
+                                        .font(PlayIQFonts.caption)
+                                        .foregroundColor(PlayIQColors.gold)
+                                    Text("\(stats.sessions)s")
+                                        .font(.system(size: 10))
+                                        .foregroundColor(PlayIQColors.textSecondary)
+                                }
+                                .padding(.horizontal, 10)
+                                .padding(.vertical, 6)
+                                .background(PlayIQColors.background)
+                                .cornerRadius(8)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .stroke(PlayIQColors.cardBorder, lineWidth: 1)
+                                )
+                            }
+                        }
+                    }
+                }
+                .padding(16)
+                .background(PlayIQColors.card)
+                .cornerRadius(12)
+            }
+
+            // My Modules
+            if let modules = profile?.modules, !modules.isEmpty {
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("My Modules")
+                        .font(PlayIQFonts.headline)
+                        .foregroundColor(PlayIQColors.text)
+
+                    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+                        ForEach(Array(modules.keys.sorted()), id: \.self) { key in
+                            if let stats = modules[key] {
+                                ModuleCardView(sport: key, stats: stats)
+                            }
+                        }
+                    }
+                }
+                .padding(16)
+                .background(PlayIQColors.card)
+                .cornerRadius(12)
+            }
+
+            // Category Mastery (in-game categories like defense, offense, etc.)
             if let categories = profile?.categories, !categories.isEmpty {
                 VStack(alignment: .leading, spacing: 12) {
-                    Text("Category Mastery")
+                    Text("Skill Mastery")
                         .font(PlayIQFonts.headline)
                         .foregroundColor(PlayIQColors.text)
 
@@ -393,6 +451,115 @@ struct ProfileView: View {
             return display.string(from: date)
         }
         return isoString
+    }
+}
+
+// MARK: - Module Card View
+
+struct ModuleCardView: View {
+    let sport: String
+    let stats: ModuleStats
+
+    private static let moduleIcons: [String: String] = [
+        "baseball": "baseball.fill", "softball": "baseball", "basketball": "basketball.fill",
+        "football": "football.fill", "soccer": "soccerball", "hockey": "hockey.puck.fill",
+        "tennis": "tennisball.fill", "golf": "figure.golf", "chess": "crown.fill",
+        "detective": "magnifyingglass", "money": "dollarsign.circle.fill",
+        "coding": "chevron.left.forwardslash.chevron.right", "survival": "leaf.fill",
+        "social": "person.2.fill", "science": "flask.fill", "history": "clock.fill",
+    ]
+
+    private var masteryColor: Color {
+        if stats.masteryPct >= 80 { return PlayIQColors.resultGreat }
+        if stats.masteryPct >= 60 { return PlayIQColors.resultGood }
+        if stats.masteryPct >= 40 { return PlayIQColors.resultOkay }
+        return PlayIQColors.resultBad
+    }
+
+    var body: some View {
+        VStack(spacing: 8) {
+            Image(systemName: Self.moduleIcons[sport] ?? "gamecontroller.fill")
+                .font(.system(size: 24))
+                .foregroundColor(PlayIQColors.gold)
+
+            Text(sport.capitalized)
+                .font(PlayIQFonts.headline)
+                .foregroundColor(PlayIQColors.text)
+
+            Text("\(stats.masteryPct)% mastery")
+                .font(PlayIQFonts.caption)
+                .foregroundColor(masteryColor)
+
+            // Mastery bar
+            GeometryReader { geometry in
+                ZStack(alignment: .leading) {
+                    RoundedRectangle(cornerRadius: 3)
+                        .fill(PlayIQColors.cardBorder)
+                        .frame(height: 6)
+
+                    RoundedRectangle(cornerRadius: 3)
+                        .fill(masteryColor)
+                        .frame(width: geometry.size.width * CGFloat(min(stats.masteryPct, 100)) / 100, height: 6)
+                }
+            }
+            .frame(height: 6)
+
+            Text("\(stats.scenariosPlayed) scenarios | \(stats.iq) IQ")
+                .font(.system(size: 10, weight: .regular, design: .rounded))
+                .foregroundColor(PlayIQColors.textSecondary)
+                .lineLimit(1)
+        }
+        .padding(12)
+        .background(PlayIQColors.background)
+        .cornerRadius(12)
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(PlayIQColors.cardBorder, lineWidth: 1)
+        )
+    }
+}
+
+// MARK: - Flow Layout (horizontal wrapping)
+
+struct FlowLayout: Layout {
+    var spacing: CGFloat = 8
+
+    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
+        let maxWidth = proposal.width ?? .infinity
+        var x: CGFloat = 0
+        var y: CGFloat = 0
+        var rowHeight: CGFloat = 0
+
+        for subview in subviews {
+            let size = subview.sizeThatFits(.unspecified)
+            if x + size.width > maxWidth && x > 0 {
+                x = 0
+                y += rowHeight + spacing
+                rowHeight = 0
+            }
+            x += size.width + spacing
+            rowHeight = max(rowHeight, size.height)
+        }
+
+        return CGSize(width: maxWidth, height: y + rowHeight)
+    }
+
+    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
+        var x: CGFloat = bounds.minX
+        var y: CGFloat = bounds.minY
+        var rowHeight: CGFloat = 0
+
+        for subview in subviews {
+            let size = subview.sizeThatFits(.unspecified)
+            if x + size.width > bounds.maxX && x > bounds.minX {
+                x = bounds.minX
+                y += rowHeight + spacing
+                rowHeight = 0
+            }
+            subview.place(at: CGPoint(x: x, y: y), proposal: ProposedViewSize(size))
+            x += size.width + spacing
+            rowHeight = max(rowHeight, size.height)
+        }
     }
 }
 
