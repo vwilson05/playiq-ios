@@ -62,14 +62,25 @@ struct GameSetup: Codable {
     let score: Score
     let runners: Runners
     let context: String?
+    // Golf-specific fields
+    let hole: Int?
+    let par: Int?
+    let lie: String?
+    let distance: Int?
+    let scoreText: String?  // Golf score as string ("E", "+2")
 
-    init(inning: Int = 0, topBottom: String = "", outs: Int = 0, score: Score = Score(home: 0, away: 0), runners: Runners = Runners(first: false, second: false, third: false), context: String? = nil) {
+    init(inning: Int = 0, topBottom: String = "", outs: Int = 0, score: Score = Score(home: 0, away: 0), runners: Runners = Runners(first: false, second: false, third: false), context: String? = nil, hole: Int? = nil, par: Int? = nil, lie: String? = nil, distance: Int? = nil, scoreText: String? = nil) {
         self.inning = inning
         self.topBottom = topBottom
         self.outs = outs
         self.score = score
         self.runners = runners
         self.context = context
+        self.hole = hole
+        self.par = par
+        self.lie = lie
+        self.distance = distance
+        self.scoreText = scoreText
     }
 
     init(from decoder: Decoder) throws {
@@ -77,9 +88,23 @@ struct GameSetup: Codable {
         inning = try container.decodeIfPresent(Int.self, forKey: .inning) ?? 0
         topBottom = try container.decodeIfPresent(String.self, forKey: .topBottom) ?? ""
         outs = try container.decodeIfPresent(Int.self, forKey: .outs) ?? 0
-        score = try container.decodeIfPresent(Score.self, forKey: .score) ?? Score(home: 0, away: 0)
         runners = try container.decodeIfPresent(Runners.self, forKey: .runners) ?? Runners(first: false, second: false, third: false)
         context = try container.decodeIfPresent(String.self, forKey: .context)
+        hole = try container.decodeIfPresent(Int.self, forKey: .hole)
+        par = try container.decodeIfPresent(Int.self, forKey: .par)
+        lie = try container.decodeIfPresent(String.self, forKey: .lie)
+        distance = try container.decodeIfPresent(Int.self, forKey: .distance)
+        // Score: try as Score object first, fall back to string
+        if let scoreObj = try? container.decodeIfPresent(Score.self, forKey: .score) {
+            score = scoreObj
+            scoreText = nil
+        } else if let scoreStr = try? container.decodeIfPresent(String.self, forKey: .score) {
+            score = Score(home: 0, away: 0)
+            scoreText = scoreStr
+        } else {
+            score = Score(home: 0, away: 0)
+            scoreText = nil
+        }
     }
 }
 

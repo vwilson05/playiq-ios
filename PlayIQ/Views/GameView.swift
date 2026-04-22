@@ -407,9 +407,7 @@ struct SportContextBar: View {
 
             // Show setup context if available
             if let setup = setup {
-                if setup.inning > 0 {
-                    contextLabel(for: sport, setup: setup)
-                }
+                contextLabel(for: sport, setup: setup)
             }
         }
         .padding(.horizontal, 14)
@@ -461,9 +459,54 @@ struct SportContextBar: View {
                     .font(PlayIQFonts.scoreboard)
                     .foregroundColor(PlayIQColors.text)
             }
+        case "golf":
+            HStack(spacing: 8) {
+                if let hole = setup.hole {
+                    Text("Hole \(hole)")
+                        .font(PlayIQFonts.scoreboard)
+                        .foregroundColor(PlayIQColors.gold)
+                }
+                if let par = setup.par {
+                    Text("Par \(par)")
+                        .font(PlayIQFonts.caption)
+                        .foregroundColor(PlayIQColors.text)
+                }
+                if let lie = setup.lie {
+                    Text(lie.capitalized)
+                        .font(PlayIQFonts.caption)
+                        .foregroundColor(PlayIQColors.textSecondary)
+                }
+                if let dist = setup.distance {
+                    Text("\(dist) yds")
+                        .font(PlayIQFonts.caption)
+                        .foregroundColor(PlayIQColors.textSecondary)
+                }
+                if let sc = setup.scoreText {
+                    Text(sc)
+                        .font(PlayIQFonts.scoreboard)
+                        .foregroundColor(PlayIQColors.text)
+                }
+            }
+        case "tennis":
+            HStack(spacing: 8) {
+                if let ctx = setup.context {
+                    Text(ctx)
+                        .font(PlayIQFonts.caption)
+                        .foregroundColor(PlayIQColors.text)
+                }
+            }
         default:
-            // Non-sport modules: no score context
-            EmptyView()
+            if setup.inning > 0 {
+                HStack(spacing: 8) {
+                    Text("\(setup.score.home)-\(setup.score.away)")
+                        .font(PlayIQFonts.scoreboard)
+                        .foregroundColor(PlayIQColors.text)
+                }
+            } else if let ctx = setup.context {
+                Text(ctx)
+                    .font(PlayIQFonts.caption)
+                    .foregroundColor(PlayIQColors.text)
+            }
         }
     }
 }

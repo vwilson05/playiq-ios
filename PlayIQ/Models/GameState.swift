@@ -88,7 +88,12 @@ final class GameState: ObservableObject {
             // Filter by selected sport
             if let sport = selectedSport {
                 scenarioList = allScenarios.filter { item in
-                    guard let sportList = item.sport else { return true }
+                    // Baseball/softball get all scenarios (many legacy ones have no sport tag)
+                    if sport == "baseball" || sport == "softball" {
+                        return true
+                    }
+                    // Other sports: only include scenarios explicitly tagged with this sport
+                    guard let sportList = item.sport else { return false }
                     return sportList.contains(sport)
                 }
             } else {
